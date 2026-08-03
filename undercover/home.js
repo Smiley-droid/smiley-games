@@ -4,7 +4,7 @@
 function renderHome(){
   const box = el(`
     <div class="home-screen">
-      <a href="../index.html" class="hub-back-link" style="position:absolute;top:14px;left:14px;z-index:5;color:var(--muted);font-size:12.5px;text-decoration:none;font-family:'IBM Plex Sans',sans-serif;opacity:.75;">← Marque-Points</a>
+      <a href="../index.html" class="hub-back-link" style="position:absolute;top:14px;left:14px;z-index:5;color:var(--muted);font-size:12.5px;text-decoration:none;font-family:'IBM Plex Sans',sans-serif;opacity:.75;">← Smiley Games</a>
       <div class="home-sky">
         <div class="home-stars"></div>
         <div class="home-moon"></div>

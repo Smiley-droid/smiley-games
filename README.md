@@ -1,11 +1,13 @@
-# Marque-Points 🃏
+# Smiley Games 🃏
 
-Petite application web (HTML/CSS/JS pur, sans dépendance) pour compter les points de vos parties de cartes.
+Petit site (HTML/CSS/JS pur, sans dépendance) pour jouer et compter les points entre amis.
 
 ## Jeux pris en charge
 
-- **Cinq Rois** — 11 manches, le score le plus **bas** gagne.
+- **Cinq Rois** — 13 manches, le score le plus **bas** gagne.
 - **Flip 7** — objectif 200 points, le score le plus **haut** gagne (fin automatique dès qu'un joueur atteint le score cible).
+- **Jeux personnalisés** — crée ton propre jeu : nom, sens du score, fin de partie (nombre de manches ou objectif de points), tout est réglable.
+- **Undercover** — jeu de bluff et de déduction à un seul téléphone (mini-site dédié dans `/undercover`).
 
 ## Fonctionnalités
 
@@ -30,3 +32,4 @@ python3 -m http.server 8000
 - `index.html` — structure de la page et templates des vues
 - `style.css` — thème visuel (table de jeu / feuille de marque)
 - `app.js` — logique de l'application et gestion du localStorage
+- `undercover/` — mini-site indépendant du jeu Undercover

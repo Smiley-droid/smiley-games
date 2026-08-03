@@ -1,5 +1,5 @@
 /* =========================================================
-   Marque-Points — Cinq Rois, Flip 7 & jeux personnalisés
+   Smiley Games — Cinq Rois, Flip 7 & jeux personnalisés
    Stockage 100% local (localStorage), aucune donnée réseau.
    ========================================================= */
 
