@@ -508,6 +508,17 @@ function renderBoard() {
 
   const firstInput = table.querySelector('[data-score-input]');
   if (firstInput) firstInput.focus();
+
+  /* Le fondu à droite n'apparaît que s'il reste du contenu à faire défiler */
+  const wrapEl = document.querySelector('.scoreboard-wrap');
+  function updateScrollFade() {
+    const canScroll = wrapEl.scrollWidth > wrapEl.clientWidth + 2;
+    const atEnd = wrapEl.scrollLeft + wrapEl.clientWidth >= wrapEl.scrollWidth - 2;
+    wrapEl.classList.toggle('can-scroll-right', canScroll && !atEnd);
+  }
+  updateScrollFade();
+  wrapEl.addEventListener('scroll', updateScrollFade, { passive: true });
+  window.addEventListener('resize', updateScrollFade);
 }
 
 function archiveGame(gameDef, game, totals) {
