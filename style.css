@@ -107,7 +107,7 @@ body{
 /* Home / game picker */
 .game-picker{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
   gap:16px;
 }
 @media (max-width:600px){.game-picker{grid-template-columns:1fr;}}

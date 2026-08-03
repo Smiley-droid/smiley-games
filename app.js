@@ -166,6 +166,16 @@ function renderHome() {
   picker.appendChild(makeCard('cinqrois', BUILTIN_GAMES.cinqrois, builtinDescr.cinqrois));
   picker.appendChild(makeCard('flip7', BUILTIN_GAMES.flip7, builtinDescr.flip7));
 
+  const undercoverCard = document.createElement('button');
+  undercoverCard.className = 'game-card';
+  undercoverCard.innerHTML = `
+    <span class="game-card-suit">🕵️</span>
+    <h3>Undercover</h3>
+    <p>Jeu de bluff et de déduction à un seul téléphone. Pas de score à saisir : ce jeu se joue à part.</p>
+    <span class="game-card-cta">Ouvrir Undercover →</span>`;
+  undercoverCard.addEventListener('click', () => { window.location.href = 'undercover/index.html'; });
+  picker.appendChild(undercoverCard);
+
   getCustomGames().forEach(cg => {
     const def = getGameDef('custom:' + cg.id);
     const descr = def.endMode === 'target'
