@@ -17,9 +17,4 @@
   <!-- Carreau -->
   <path d="M60,17 C81,35 98,49 98,61 C98,73 81,87 60,105 C39,87 22,73 22,61 C22,49 39,35 60,17 Z"
         fill="url(#goldDiamond)" stroke="#0f3d2e" stroke-width="2"/>
-
-  <!-- Visage souriant -->
-  <circle cx="48.5" cy="56" r="4.2" fill="#20241f"/>
-  <circle cx="71.5" cy="56" r="4.2" fill="#20241f"/>
-  <path d="M45,69 C51,80 69,80 75,69" fill="none" stroke="#20241f" stroke-width="4.4" stroke-linecap="round"/>
 </svg>
