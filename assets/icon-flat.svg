@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="feltBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#155a41"/>
+      <stop offset="100%" stop-color="#0f3d2e"/>
+    </linearGradient>
+    <linearGradient id="goldDiamond" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8c877"/>
+      <stop offset="100%" stop-color="#c8a24b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond plein cadre (iOS/Android appliquent eux-mêmes leur propre masque arrondi) -->
+  <rect x="0" y="0" width="512" height="512" fill="url(#feltBg)"/>
+
+  <!-- Carreau -->
+  <path d="M256,72.5 C345.6,149.3 418.1,209.1 418.1,260.3 C418.1,311.5 345.6,371.2 256,448 C166.4,371.2 93.9,311.5 93.9,260.3 C93.9,209.1 166.4,149.3 256,72.5 Z"
+        fill="url(#goldDiamond)" stroke="#0f3d2e" stroke-width="7"/>
+</svg>
