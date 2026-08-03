@@ -333,18 +333,6 @@ body{
   box-shadow:var(--shadow-card);
   margin-bottom:16px;
 }
-.scoreboard-wrap::after{
-  content:"";
-  position:absolute;
-  top:0; right:0; bottom:0;
-  width:22px;
-  background:linear-gradient(to right, transparent, rgba(239,230,207,0.9));
-  pointer-events:none;
-  border-radius:0 var(--radius) var(--radius) 0;
-  opacity:0;
-  transition:opacity .15s ease;
-}
-.scoreboard-wrap.can-scroll-right::after{ opacity:1; }
 table.scoreboard{
   border-collapse:collapse;
   width:100%;
