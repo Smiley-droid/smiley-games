@@ -135,7 +135,9 @@
 <template id="tpl-customs">
   <section class="view view-customs">
     <h2 class="view-title">Mes jeux personnalisés</h2>
-    <p class="hint">Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.</p>
+    <div class="setup-block">
+      <p class="hint" style="margin-bottom:0;">Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.</p>
+    </div>
     <button class="btn-primary" id="customs-new-btn" style="margin-bottom:18px;">+ Nouveau jeu personnalisé</button>
     <ul class="player-manage-list" id="customs-list"></ul>
   </section>
@@ -144,10 +146,12 @@
 <template id="tpl-players">
   <section class="view view-players">
     <h2 class="view-title">Joueurs enregistrés</h2>
-    <p class="hint">Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.</p>
-    <div class="inline-add">
-      <input type="text" id="players-new" placeholder="Nom du joueur" maxlength="24">
-      <button id="players-add" class="btn-ghost">+ Ajouter</button>
+    <div class="setup-block">
+      <p class="hint">Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.</p>
+      <div class="inline-add">
+        <input type="text" id="players-new" placeholder="Nom du joueur" maxlength="24">
+        <button id="players-add" class="btn-ghost">+ Ajouter</button>
+      </div>
     </div>
     <ul class="player-manage-list" id="players-manage-list"></ul>
   </section>
