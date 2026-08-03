@@ -23,6 +23,7 @@
     <nav class="topnav">
       <button class="nav-btn" data-view="home">Accueil</button>
       <button class="nav-btn" data-view="players">Joueurs</button>
+      <button class="nav-btn" data-view="customs">Jeux perso</button>
       <button class="nav-btn" data-view="history">Historique</button>
     </nav>
   </header>
@@ -37,22 +38,57 @@
 <template id="tpl-home">
   <section class="view view-home">
     <h2 class="view-title">Choisir une partie</h2>
-    <div class="game-picker">
-      <button class="game-card" data-game="cinqrois">
-        <span class="game-card-suit">♦</span>
-        <h3>Cinq Rois</h3>
-        <p>11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.</p>
-        <span class="game-card-cta">Nouvelle partie →</span>
-      </button>
-      <button class="game-card" data-game="flip7">
-        <span class="game-card-suit">♥</span>
-        <h3>Flip 7</h3>
-        <p>Prise de risque. Objectif 200 points. Le score le plus haut gagne.</p>
-        <span class="game-card-cta">Nouvelle partie →</span>
-      </button>
-    </div>
+    <div class="game-picker" id="game-picker"></div>
 
     <div id="resume-zone"></div>
+  </section>
+</template>
+
+<template id="tpl-customgame-new">
+  <section class="view view-customgame">
+    <button class="back-link" data-back="home">← Retour</button>
+    <h2 class="view-title">Créer un jeu personnalisé</h2>
+
+    <div class="setup-block">
+      <h3>Nom du jeu</h3>
+      <input type="text" id="cg-name" placeholder="Ex : Belote, Tarot, Rami maison…" maxlength="30">
+    </div>
+
+    <div class="setup-block">
+      <h3>Sens du score</h3>
+      <p class="hint">Qui gagne à la fin de la partie ?</p>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="cg-direction" value="desc" checked> Le score le plus <strong>haut</strong> gagne</label>
+        <label class="radio-opt"><input type="radio" name="cg-direction" value="asc"> Le score le plus <strong>bas</strong> gagne</label>
+      </div>
+    </div>
+
+    <div class="setup-block">
+      <h3>Fin de partie</h3>
+      <p class="hint">Comment la partie se termine-t-elle ?</p>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="cg-endmode" value="rounds" checked> Un nombre de manches fixé</label>
+        <label class="radio-opt"><input type="radio" name="cg-endmode" value="target"> Un objectif de points à atteindre</label>
+      </div>
+      <div class="option-row" id="cg-rounds-row">
+        <label for="cg-maxrounds">Nombre de manches</label>
+        <input type="number" id="cg-maxrounds" min="1" max="50" value="10">
+      </div>
+      <div class="option-row hidden" id="cg-target-row">
+        <label for="cg-target">Objectif de points</label>
+        <input type="number" id="cg-target" min="1" step="5" value="100">
+      </div>
+    </div>
+
+    <div class="setup-block">
+      <h3>Vocabulaire</h3>
+      <div class="option-row">
+        <label for="cg-roundword">Nom d'une manche</label>
+        <input type="text" id="cg-roundword" maxlength="16" value="Manche" style="width:130px;">
+      </div>
+    </div>
+
+    <button id="cg-save" class="btn-primary btn-large">Créer ce jeu</button>
   </section>
 </template>
 
@@ -92,6 +128,15 @@
     </div>
 
     <div class="board-actions" id="board-actions"></div>
+  </section>
+</template>
+
+<template id="tpl-customs">
+  <section class="view view-customs">
+    <h2 class="view-title">Mes jeux personnalisés</h2>
+    <p class="hint">Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.</p>
+    <button class="btn-primary" id="customs-new-btn" style="margin-bottom:18px;">+ Nouveau jeu personnalisé</button>
+    <ul class="player-manage-list" id="customs-list"></ul>
   </section>
 </template>
 

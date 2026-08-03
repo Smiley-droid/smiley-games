@@ -148,6 +148,73 @@ body{
   padding-top:12px;
 }
 
+.game-card.add-custom{
+  background:transparent;
+  border:1.5px dashed rgba(246,241,226,0.4);
+  box-shadow:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:120px;
+}
+.game-card.add-custom:hover{border-color:var(--gold);background:rgba(246,241,226,0.05);transform:translateY(-3px);}
+.game-card.add-custom .add-custom-inner{text-align:center;color:var(--paper);}
+.game-card.add-custom .add-custom-inner span{font-size:1.6rem;display:block;color:var(--gold);margin-bottom:6px;}
+.game-card.add-custom .add-custom-inner p{margin:0;font-size:0.85rem;font-weight:600;}
+
+.game-card-remove{
+  position:absolute; top:12px; left:14px;
+  background:none;border:none;color:var(--crimson);
+  font-size:1rem; font-weight:700; cursor:pointer;
+  line-height:1; padding:2px 6px; border-radius:6px;
+}
+.game-card-remove:hover{background:rgba(163,61,61,0.1);}
+
+.radio-group{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.radio-opt{
+  display:flex;align-items:center;gap:8px;
+  font-size:0.9rem;
+  padding:9px 12px;
+  border:1.5px solid var(--line);
+  border-radius:8px;
+  cursor:pointer;
+}
+.radio-opt input{accent-color:var(--felt-1);}
+.radio-opt:has(input:checked){border-color:var(--felt-1);background:rgba(21,90,65,0.06);}
+.option-row.hidden{display:none;}
+
+.hidden{display:none !important;}
+
+.create-custom-link{
+  display:block;
+  width:100%;
+  background:none;
+  border:1.5px dashed rgba(246,241,226,0.35);
+  color:rgba(246,241,226,0.85);
+  padding:14px;
+  border-radius:var(--radius);
+  font-weight:600;
+  font-size:0.92rem;
+  cursor:pointer;
+  margin-top:14px;
+}
+.create-custom-link:hover{border-color:var(--gold);color:var(--gold);}
+
+.radio-group{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.radio-opt{
+  display:flex;align-items:center;gap:8px;
+  font-size:0.88rem;
+  cursor:pointer;
+  padding:8px 10px;
+  border:1.5px solid var(--line);
+  border-radius:8px;
+}
+.radio-opt input{margin:0;}
+.radio-opt:has(input:checked){border-color:var(--felt-1);background:rgba(21,90,65,0.06);}
+
+.custom-game-card-actions{display:flex;gap:8px;}
+.custom-game-card-actions button{font-size:0.78rem;}
+
 #resume-zone{margin-top:22px;}
 .resume-card{
   background:rgba(246,241,226,0.08);

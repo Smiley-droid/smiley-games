@@ -1,35 +1,40 @@
 /* =========================================================
-   Marque-Points — Cinq Rois & Flip 7
+   Marque-Points — Cinq Rois, Flip 7 & jeux personnalisés
    Stockage 100% local (localStorage), aucune donnée réseau.
    ========================================================= */
 
 const STORAGE_KEYS = {
   players: 'mp_players_v1',
   currentGame: 'mp_current_game_v1',
-  history: 'mp_history_v1'
+  history: 'mp_history_v1',
+  customGames: 'mp_custom_games_v1'
 };
 
-const GAMES = {
+/* Jeux intégrés. endMode: 'rounds' (nombre de manches fixe) ou 'target' (objectif de points).
+   direction: 'asc' = le score le plus bas gagne, 'desc' = le score le plus haut gagne. */
+const BUILTIN_GAMES = {
   cinqrois: {
     label: 'Cinq Rois',
     suit: '♦',
-    defaultRounds: 11,
-    direction: 'asc', // le score le plus BAS gagne
-    roundLabel: (n) => `Manche ${n}`,
-    describeOptions() {
+    direction: 'asc',
+    endMode: 'rounds',
+    defaultRounds: 13,
+    roundWord: 'Manche',
+    optionsHtml() {
       return `<div class="option-row">
         <label for="opt-maxrounds">Nombre de manches</label>
-        <input type="number" id="opt-maxrounds" min="1" max="20" value="11">
+        <input type="number" id="opt-maxrounds" min="1" max="20" value="13">
       </div>`;
     }
   },
   flip7: {
     label: 'Flip 7',
     suit: '♥',
-    direction: 'desc', // le score le plus HAUT gagne
-    target: 200,
-    roundLabel: (n) => `Tour ${n}`,
-    describeOptions() {
+    direction: 'desc',
+    endMode: 'target',
+    defaultTarget: 200,
+    roundWord: 'Tour',
+    optionsHtml() {
       return `<div class="option-row">
         <label for="opt-target">Score cible</label>
         <input type="number" id="opt-target" min="10" step="5" value="200">
@@ -50,11 +55,8 @@ const store = {
     }
   },
   set(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.error('Erreur d\'écriture localStorage', e);
-    }
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { console.error("Erreur d'écriture localStorage", e); }
   },
   remove(key) { localStorage.removeItem(key); }
 };
@@ -66,6 +68,8 @@ function saveCurrentGame(game) { store.set(STORAGE_KEYS.currentGame, game); }
 function clearCurrentGame() { store.remove(STORAGE_KEYS.currentGame); }
 function getHistory() { return store.get(STORAGE_KEYS.history, []); }
 function saveHistory(list) { store.set(STORAGE_KEYS.history, list); }
+function getCustomGames() { return store.get(STORAGE_KEYS.customGames, []); }
+function saveCustomGames(list) { store.set(STORAGE_KEYS.customGames, list); }
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -81,10 +85,38 @@ function ensurePlayer(name) {
   return p;
 }
 
+/* Normalise un type de jeu (intégré ou personnalisé "custom:<id>") en un objet
+   { label, suit, direction, endMode, defaultRounds, defaultTarget, roundWord, custom } */
+function getGameDef(type) {
+  if (BUILTIN_GAMES[type]) {
+    return Object.assign({ custom: false }, BUILTIN_GAMES[type]);
+  }
+  if (typeof type === 'string' && type.startsWith('custom:')) {
+    const id = type.slice(7);
+    const cg = getCustomGames().find(g => g.id === id);
+    if (!cg) return null;
+    return {
+      custom: true,
+      id: cg.id,
+      label: cg.name,
+      suit: cg.suit || '★',
+      direction: cg.direction,
+      endMode: cg.endMode,
+      defaultRounds: cg.roundsCount,
+      defaultTarget: cg.target,
+      roundWord: cg.roundWord || 'Manche'
+    };
+  }
+  return null;
+}
+
+function roundLabel(gameDef, n) { return `${gameDef.roundWord} ${n}`; }
+
 /* ---------- Router ---------- */
 const app = document.getElementById('app');
 let setupSelectedGame = null;
 let setupSelectedPlayers = [];
+let editingCustomId = null;
 
 function setView(view, payload) {
   document.querySelectorAll('.nav-btn').forEach(b => {
@@ -95,6 +127,8 @@ function setView(view, payload) {
   else if (view === 'history') renderHistory();
   else if (view === 'setup') renderSetup(payload);
   else if (view === 'board') renderBoard();
+  else if (view === 'customs') renderCustoms();
+  else if (view === 'customnew') renderCustomForm(payload);
 }
 
 document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -107,34 +141,67 @@ function renderHome() {
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
 
-  app.querySelectorAll('.game-card').forEach(card => {
-    card.addEventListener('click', () => {
-      setupSelectedGame = card.dataset.game;
+  const picker = document.getElementById('game-picker');
+  const builtinDescr = {
+    cinqrois: '13 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
+    flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.'
+  };
+
+  function makeCard(type, def, descr) {
+    const btn = document.createElement('button');
+    btn.className = 'game-card';
+    btn.innerHTML = `
+      <span class="game-card-suit">${def.suit}</span>
+      <h3>${escapeHtml(def.label)}</h3>
+      <p>${descr}</p>
+      <span class="game-card-cta">Nouvelle partie →</span>`;
+    btn.addEventListener('click', () => {
+      setupSelectedGame = type;
       setupSelectedPlayers = [];
       setView('setup');
     });
+    return btn;
+  }
+
+  picker.appendChild(makeCard('cinqrois', BUILTIN_GAMES.cinqrois, builtinDescr.cinqrois));
+  picker.appendChild(makeCard('flip7', BUILTIN_GAMES.flip7, builtinDescr.flip7));
+
+  getCustomGames().forEach(cg => {
+    const def = getGameDef('custom:' + cg.id);
+    const descr = def.endMode === 'target'
+      ? `Objectif ${def.defaultTarget} points. ${def.direction === 'asc' ? 'Score le plus bas gagne.' : 'Score le plus haut gagne.'}`
+      : `${def.defaultRounds} manches. ${def.direction === 'asc' ? 'Score le plus bas gagne.' : 'Score le plus haut gagne.'}`;
+    picker.appendChild(makeCard('custom:' + cg.id, def, descr));
+  });
+
+  document.getElementById('goto-create-custom').addEventListener('click', () => {
+    editingCustomId = null;
+    setView('customnew');
   });
 
   const resumeZone = document.getElementById('resume-zone');
   const current = getCurrentGame();
   if (current && !current.finished) {
-    const gameDef = GAMES[current.type];
-    resumeZone.innerHTML = `
-      <div class="resume-card">
-        <div>
-          <strong>Partie en cours — ${gameDef.label}</strong>
-          <p>${current.players.map(p => p.name).join(', ')} · ${current.rounds.length} manche(s) jouée(s)</p>
-        </div>
-        <button class="btn-ghost" id="resume-btn" style="border-color:var(--felt-1);color:var(--felt-1);">Reprendre →</button>
-      </div>`;
-    document.getElementById('resume-btn').addEventListener('click', () => setView('board'));
+    const gameDef = getGameDef(current.type);
+    if (gameDef) {
+      resumeZone.innerHTML = `
+        <div class="resume-card">
+          <div>
+            <strong>Partie en cours — ${escapeHtml(gameDef.label)}</strong>
+            <p>${current.players.map(p => escapeHtml(p.name)).join(', ')} · ${current.rounds.length} manche(s) jouée(s)</p>
+          </div>
+          <button class="btn-ghost" id="resume-btn" style="border-color:var(--felt-1);color:var(--felt-1);">Reprendre →</button>
+        </div>`;
+      document.getElementById('resume-btn').addEventListener('click', () => setView('board'));
+    }
   }
 }
 
 /* ---------- Vue: Configuration nouvelle partie ---------- */
 function renderSetup() {
   if (!setupSelectedGame) { setView('home'); return; }
-  const gameDef = GAMES[setupSelectedGame];
+  const gameDef = getGameDef(setupSelectedGame);
+  if (!gameDef) { setView('home'); return; }
   const tpl = document.getElementById('tpl-setup');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
@@ -180,7 +247,18 @@ function renderSetup() {
     }
   }
 
-  document.getElementById('setup-options').innerHTML = gameDef.describeOptions();
+  const optionsBlock = document.getElementById('setup-options');
+  if (gameDef.endMode === 'target') {
+    optionsBlock.innerHTML = `<h3>Options</h3><div class="option-row">
+        <label for="opt-target">Score cible</label>
+        <input type="number" id="opt-target" min="1" step="5" value="${gameDef.defaultTarget || 100}">
+      </div>`;
+  } else {
+    optionsBlock.innerHTML = `<h3>Options</h3><div class="option-row">
+        <label for="opt-maxrounds">Nombre de manches</label>
+        <input type="number" id="opt-maxrounds" min="1" max="50" value="${gameDef.defaultRounds || 10}">
+      </div>`;
+  }
 
   const startBtn = document.getElementById('setup-start');
   function refreshStartState() {
@@ -205,12 +283,12 @@ function renderSetup() {
       winnerId: null,
       createdAt: Date.now()
     };
-    if (setupSelectedGame === 'cinqrois') {
-      const v = parseInt(document.getElementById('opt-maxrounds').value, 10);
-      game.maxRounds = (v && v > 0) ? v : GAMES.cinqrois.defaultRounds;
-    } else if (setupSelectedGame === 'flip7') {
+    if (gameDef.endMode === 'target') {
       const v = parseInt(document.getElementById('opt-target').value, 10);
-      game.target = (v && v > 0) ? v : GAMES.flip7.target;
+      game.target = (v && v > 0) ? v : (gameDef.defaultTarget || 100);
+    } else {
+      const v = parseInt(document.getElementById('opt-maxrounds').value, 10);
+      game.maxRounds = (v && v > 0) ? v : (gameDef.defaultRounds || 10);
     }
     saveCurrentGame(game);
     setView('board');
@@ -226,28 +304,35 @@ function computeTotals(game) {
   return totals;
 }
 
-function getRanking(game, totals) {
-  const dir = GAMES[game.type].direction;
+function getRanking(gameDef, totals) {
+  const dir = gameDef.direction;
   const order = totals.map((t, i) => ({ i, t }));
   order.sort((a, b) => dir === 'asc' ? a.t - b.t : b.t - a.t);
   return order;
 }
 
-function checkGameEnd(game, totals) {
-  if (game.type === 'flip7') {
-    const target = game.target || 200;
-    const maxTotal = Math.max(...totals, -Infinity);
-    if (game.rounds.length > 0 && maxTotal >= target) return true;
-  } else if (game.type === 'cinqrois') {
-    if (game.rounds.length >= (game.maxRounds || 11)) return true;
+function checkGameEnd(gameDef, game, totals) {
+  if (gameDef.endMode === 'target') {
+    if (game.rounds.length === 0) return false;
+    const target = game.target || gameDef.defaultTarget || 100;
+    // L'objectif de points ne déclenche la fin que pour un score qui monte
+    // (score le plus haut gagne). Pour un score qui descend, seule la fin
+    // manuelle ("Terminer la partie") a du sens.
+    return gameDef.direction === 'desc' && Math.max(...totals) >= target;
   }
-  return false;
+  return game.rounds.length >= (game.maxRounds || gameDef.defaultRounds || 10);
 }
 
 function renderBoard() {
   let game = getCurrentGame();
   if (!game) { setView('home'); return; }
-  const gameDef = GAMES[game.type];
+  const gameDef = getGameDef(game.type);
+  if (!gameDef) {
+    alert("Ce jeu personnalisé n'existe plus.");
+    clearCurrentGame();
+    setView('home');
+    return;
+  }
 
   const tpl = document.getElementById('tpl-board');
   app.innerHTML = '';
@@ -257,12 +342,12 @@ function renderBoard() {
   document.getElementById('board-title').textContent = `${gameDef.suit} ${gameDef.label}`;
 
   const totals = computeTotals(game);
-  const ranking = getRanking(game, totals);
+  const ranking = getRanking(gameDef, totals);
   const leaderIdx = ranking.length ? ranking[0].i : -1;
 
-  document.getElementById('board-meta').textContent = game.type === 'flip7'
-    ? `Objectif : ${game.target || 200} points · Meilleur score gagne`
-    : `${game.rounds.length} / ${game.maxRounds || 11} manches · Score le plus bas gagne`;
+  document.getElementById('board-meta').textContent = gameDef.endMode === 'target'
+    ? `Objectif : ${game.target} points · ${gameDef.direction === 'asc' ? 'Score le plus bas gagne' : 'Meilleur score gagne'}`
+    : `${game.rounds.length} / ${game.maxRounds} manches · ${gameDef.direction === 'asc' ? 'Score le plus bas gagne' : 'Score le plus haut gagne'}`;
 
   const bannerEl = document.getElementById('winner-banner');
   if (game.finished) {
@@ -290,7 +375,7 @@ function renderBoard() {
   const tbody = document.createElement('tbody');
   game.rounds.forEach((round, rIdx) => {
     const tr = document.createElement('tr');
-    let cells = `<td>${gameDef.roundLabel(rIdx + 1)}</td>`;
+    let cells = `<td>${roundLabel(gameDef, rIdx + 1)}</td>`;
     round.forEach(val => {
       cells += `<td>${Number.isFinite(val) ? val : 0}</td>`;
     });
@@ -301,7 +386,7 @@ function renderBoard() {
   if (!game.finished) {
     const nextRoundNum = game.rounds.length + 1;
     const tr = document.createElement('tr');
-    let cells = `<td>${gameDef.roundLabel(nextRoundNum)}</td>`;
+    let cells = `<td>${roundLabel(gameDef, nextRoundNum)}</td>`;
     game.players.forEach((p, i) => {
       cells += `<td><input type="number" inputmode="numeric" data-score-input="${i}" placeholder="0"></td>`;
     });
@@ -353,11 +438,11 @@ function renderBoard() {
       });
       game.rounds.push(round);
       const newTotals = computeTotals(game);
-      if (checkGameEnd(game, newTotals)) {
+      if (checkGameEnd(gameDef, game, newTotals)) {
         game.finished = true;
-        const rank = getRanking(game, newTotals);
+        const rank = getRanking(gameDef, newTotals);
         game.winnerId = rank[0].i;
-        archiveGame(game, newTotals);
+        archiveGame(gameDef, game, newTotals);
       }
       saveCurrentGame(game);
       renderBoard();
@@ -383,9 +468,9 @@ function renderBoard() {
       if (!confirm('Terminer la partie avec les scores actuels ?')) return;
       const finalTotals = computeTotals(game);
       game.finished = true;
-      const rank = getRanking(game, finalTotals);
+      const rank = getRanking(gameDef, finalTotals);
       game.winnerId = rank[0].i;
-      archiveGame(game, finalTotals);
+      archiveGame(gameDef, game, finalTotals);
       saveCurrentGame(game);
       renderBoard();
     });
@@ -411,16 +496,17 @@ function renderBoard() {
   });
   actionsEl.appendChild(abandonBtn);
 
-  // Focus le premier champ de saisie pour aller plus vite
   const firstInput = table.querySelector('[data-score-input]');
   if (firstInput) firstInput.focus();
 }
 
-function archiveGame(game, totals) {
+function archiveGame(gameDef, game, totals) {
   const history = getHistory();
   history.unshift({
     id: game.id,
     type: game.type,
+    label: gameDef.label,
+    suit: gameDef.suit,
     players: game.players,
     totals,
     winnerId: game.winnerId,
@@ -477,6 +563,123 @@ function renderPlayers() {
   renderList();
 }
 
+/* ---------- Vue: Jeux personnalisés (liste + gestion) ---------- */
+function renderCustoms() {
+  const tpl = document.getElementById('tpl-customs');
+  app.innerHTML = '';
+  app.appendChild(tpl.content.cloneNode(true));
+
+  document.getElementById('customs-new-btn').addEventListener('click', () => {
+    editingCustomId = null;
+    setView('customnew');
+  });
+
+  const listEl = document.getElementById('customs-list');
+  const customs = getCustomGames();
+  if (customs.length === 0) {
+    listEl.innerHTML = '<p class="empty-note" style="color:rgba(246,241,226,0.7);">Aucun jeu personnalisé pour l\'instant.</p>';
+    return;
+  }
+  listEl.innerHTML = '';
+  customs.forEach(cg => {
+    const desc = cg.endMode === 'target'
+      ? `Objectif ${cg.target} pts · ${cg.direction === 'asc' ? 'plus bas gagne' : 'plus haut gagne'}`
+      : `${cg.roundsCount} manches · ${cg.direction === 'asc' ? 'plus bas gagne' : 'plus haut gagne'}`;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div>
+        <div class="pname">${cg.suit || '★'} ${escapeHtml(cg.name)}</div>
+        <div class="pmeta">${desc}</div>
+      </div>
+      <div class="custom-game-card-actions">
+        <button class="btn-ghost" data-edit="${cg.id}" style="border-color:var(--felt-1);color:var(--felt-1);padding:6px 10px;">Modifier</button>
+        <button class="icon-btn" data-remove="${cg.id}">Supprimer</button>
+      </div>`;
+    listEl.appendChild(li);
+  });
+
+  listEl.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      editingCustomId = btn.dataset.edit;
+      setView('customnew');
+    });
+  });
+  listEl.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!confirm('Supprimer ce jeu personnalisé ? Les parties déjà jouées restent visibles dans l\'historique.')) return;
+      saveCustomGames(getCustomGames().filter(g => g.id !== btn.dataset.remove));
+      renderCustoms();
+    });
+  });
+}
+
+/* ---------- Vue: Créer / modifier un jeu personnalisé ---------- */
+function renderCustomForm() {
+  const tpl = document.getElementById('tpl-customgame-new');
+  app.innerHTML = '';
+  app.appendChild(tpl.content.cloneNode(true));
+  document.querySelector('[data-back="home"]').addEventListener('click', () => setView('customs'));
+
+  const nameInput = document.getElementById('cg-name');
+  const roundsRow = document.getElementById('cg-rounds-row');
+  const targetRow = document.getElementById('cg-target-row');
+  const maxRoundsInput = document.getElementById('cg-maxrounds');
+  const targetInput = document.getElementById('cg-target');
+  const roundWordInput = document.getElementById('cg-roundword');
+  const saveBtn = document.getElementById('cg-save');
+
+  const existing = editingCustomId ? getCustomGames().find(g => g.id === editingCustomId) : null;
+  if (existing) {
+    document.querySelector('.view-title').textContent = 'Modifier le jeu personnalisé';
+    saveBtn.textContent = 'Enregistrer les modifications';
+    nameInput.value = existing.name;
+    roundWordInput.value = existing.roundWord || 'Manche';
+    document.querySelector(`input[name="cg-direction"][value="${existing.direction}"]`).checked = true;
+    document.querySelector(`input[name="cg-endmode"][value="${existing.endMode}"]`).checked = true;
+    if (existing.endMode === 'rounds') maxRoundsInput.value = existing.roundsCount;
+    else targetInput.value = existing.target;
+  }
+
+  function syncEndModeRows() {
+    const mode = document.querySelector('input[name="cg-endmode"]:checked').value;
+    roundsRow.classList.toggle('hidden', mode !== 'rounds');
+    targetRow.classList.toggle('hidden', mode !== 'target');
+  }
+  syncEndModeRows();
+  document.querySelectorAll('input[name="cg-endmode"]').forEach(r => r.addEventListener('change', syncEndModeRows));
+
+  saveBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) { alert('Donne un nom à ton jeu.'); nameInput.focus(); return; }
+    const direction = document.querySelector('input[name="cg-direction"]:checked').value;
+    const endMode = document.querySelector('input[name="cg-endmode"]:checked').value;
+    const roundWord = roundWordInput.value.trim() || 'Manche';
+
+    const cg = existing || { id: uid() };
+    cg.name = name;
+    cg.direction = direction;
+    cg.endMode = endMode;
+    cg.roundWord = roundWord;
+    cg.suit = existing ? existing.suit : '★';
+    if (endMode === 'rounds') {
+      const v = parseInt(maxRoundsInput.value, 10);
+      cg.roundsCount = (v && v > 0) ? v : 10;
+      delete cg.target;
+    } else {
+      const v = parseInt(targetInput.value, 10);
+      cg.target = (v && v > 0) ? v : 100;
+      delete cg.roundsCount;
+    }
+
+    const list = getCustomGames();
+    const idx = list.findIndex(g => g.id === cg.id);
+    if (idx >= 0) list[idx] = cg; else list.push(cg);
+    saveCustomGames(list);
+    editingCustomId = null;
+    setView('customs');
+  });
+}
+
 /* ---------- Vue: Historique ---------- */
 function renderHistory() {
   const tpl = document.getElementById('tpl-history');
@@ -491,7 +694,6 @@ function renderHistory() {
   }
 
   history.forEach(h => {
-    const gameDef = GAMES[h.type] || {};
     const div = document.createElement('div');
     div.className = 'history-card';
     const date = new Date(h.finishedAt).toLocaleString('fr-FR');
@@ -499,7 +701,7 @@ function renderHistory() {
       <span class="history-pill ${i === h.winnerId ? 'win' : ''}">${escapeHtml(p.name)} · ${h.totals[i]}</span>
     `).join('');
     div.innerHTML = `
-      <h4>${gameDef.suit || ''} ${gameDef.label || h.type}</h4>
+      <h4>${h.suit || ''} ${escapeHtml(h.label || h.type)}</h4>
       <div class="hdate">${date} · ${h.roundsPlayed} manche(s)</div>
       <div class="history-scores">${pills}</div>`;
     listEl.appendChild(div);
