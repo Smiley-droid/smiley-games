@@ -326,11 +326,21 @@ body{
 .winner-banner.hidden{display:none;}
 
 .scoreboard-wrap{
+  position:relative;
   background:var(--paper);
   border-radius:var(--radius);
   overflow-x:auto;
   box-shadow:var(--shadow-card);
   margin-bottom:16px;
+}
+.scoreboard-wrap::after{
+  content:"";
+  position:absolute;
+  top:0; right:0; bottom:0;
+  width:22px;
+  background:linear-gradient(to right, transparent, rgba(239,230,207,0.9));
+  pointer-events:none;
+  border-radius:0 var(--radius) var(--radius) 0;
 }
 table.scoreboard{
   border-collapse:collapse;
@@ -357,6 +367,18 @@ table.scoreboard{
   color:#6b6550;
   font-size:0.78rem;
   white-space:nowrap;
+  position:sticky;
+  left:0;
+  z-index:2;
+  background:var(--paper);
+  box-shadow:2px 0 4px rgba(0,0,0,0.08);
+}
+.scoreboard thead th:first-child{
+  background:var(--paper-2);
+  z-index:3;
+}
+.scoreboard tfoot td:first-child{
+  background:var(--paper-2);
 }
 .scoreboard tbody tr:last-child td{border-bottom:none;}
 .scoreboard tfoot td{
@@ -377,10 +399,23 @@ table.scoreboard{
 .scoreboard .bust{color:var(--crimson);}
 .player-col-name{
   display:flex; align-items:center; justify-content:center; gap:4px;
+  max-width:120px;
+}
+.player-col-name span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 .remove-col{
   background:none;border:none;color:var(--crimson);cursor:pointer;font-size:0.9rem;line-height:1;
   padding:2px;
+  flex-shrink:0;
+}
+
+@media (max-width:420px){
+  .scoreboard th, .scoreboard td{ padding:8px 8px; font-size:0.82rem; }
+  .scoreboard td input{ width:46px; padding:5px 2px; }
+  .player-col-name{ max-width:80px; }
 }
 
 .board-actions{display:flex;gap:10px;flex-wrap:wrap;}
