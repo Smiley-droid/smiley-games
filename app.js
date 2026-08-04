@@ -112,6 +112,115 @@ function getGameDef(type) {
 
 function roundLabel(gameDef, n) { return `${gameDef.roundWord} ${n}`; }
 
+/* ---------- Import / export de partie (code texte encodé en hexadécimal) ----------
+   Remarque : il s'agit d'un encodage réversible (XOR + hexadécimal), pas d'un
+   chiffrement cryptographique sécurisé — il sert juste à obtenir un code
+   compact et illisible à copier-coller, pas à protéger des données sensibles. */
+const XOR_KEY = [0x5A, 0x3C, 0x7E, 0x91, 0x2D, 0x6F, 0xA3, 0x18];
+
+function exportGameCode(game) {
+  const json = JSON.stringify(game);
+  const bytes = new TextEncoder().encode(json);
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) {
+    const b = bytes[i] ^ XOR_KEY[i % XOR_KEY.length];
+    hex += b.toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
+function importGameCode(hexStr) {
+  const clean = hexStr.trim().replace(/\s+/g, '');
+  if (!/^[0-9a-fA-F]+$/.test(clean) || clean.length === 0 || clean.length % 2 !== 0) {
+    throw new Error('Code invalide.');
+  }
+  const bytes = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    const b = parseInt(clean.substr(i, 2), 16);
+    bytes[i / 2] = b ^ XOR_KEY[(i / 2) % XOR_KEY.length];
+  }
+  const json = new TextDecoder().decode(bytes);
+  const game = JSON.parse(json);
+  if (!game || typeof game !== 'object' || !game.type || !Array.isArray(game.players) || !Array.isArray(game.rounds)) {
+    throw new Error('Ce code ne correspond pas à une partie valide.');
+  }
+  return game;
+}
+
+function closeModal() {
+  const m = document.querySelector('.modal-overlay');
+  if (m) m.remove();
+}
+
+function openModal(innerHtml) {
+  closeModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal-card">${innerHtml}</div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function openExportModal(game) {
+  const code = exportGameCode(game);
+  const overlay = openModal(`
+    <h3 class="modal-title">Exporter la partie</h3>
+    <p class="hint">Copie ce code (${game.finished ? 'partie terminée' : 'partie en cours'}) et envoie-le pour le reprendre sur un autre appareil, via l'onglet « Importer ».</p>
+    <textarea id="export-code" class="code-textarea" rows="6" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn-primary" id="export-copy-btn">Copier le code</button>
+      <button class="btn-ghost" id="export-close-btn">Fermer</button>
+    </div>`);
+  const ta = overlay.querySelector('#export-code');
+  ta.value = code;
+  ta.addEventListener('click', () => ta.select());
+  overlay.querySelector('#export-copy-btn').addEventListener('click', async (e) => {
+    ta.select();
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch (err) {
+      document.execCommand('copy');
+    }
+    e.target.textContent = 'Copié ✓';
+    setTimeout(() => { e.target.textContent = 'Copier le code'; }, 1500);
+  });
+  overlay.querySelector('#export-close-btn').addEventListener('click', closeModal);
+}
+
+function openImportModal() {
+  const overlay = openModal(`
+    <h3 class="modal-title">Importer une partie</h3>
+    <p class="hint">Colle ici le code reçu (partie en cours ou terminée).</p>
+    <textarea id="import-code" class="code-textarea" rows="6" placeholder="Colle le code ici…"></textarea>
+    <p class="import-error hidden" id="import-error"></p>
+    <div class="modal-actions">
+      <button class="btn-primary" id="import-confirm-btn">Importer</button>
+      <button class="btn-ghost" id="import-close-btn">Annuler</button>
+    </div>`);
+  overlay.querySelector('#import-close-btn').addEventListener('click', closeModal);
+  overlay.querySelector('#import-confirm-btn').addEventListener('click', () => {
+    const val = overlay.querySelector('#import-code').value;
+    const errEl = overlay.querySelector('#import-error');
+    let game;
+    try {
+      game = importGameCode(val);
+    } catch (e) {
+      errEl.textContent = "Code invalide ou incomplet — vérifie qu'il a été copié en entier.";
+      errEl.classList.remove('hidden');
+      return;
+    }
+    const existing = getCurrentGame();
+    if (existing && !confirm("Importer cette partie remplacera la partie en cours affichée à l'écran. Continuer ?")) {
+      return;
+    }
+    game.id = uid(); // évite les collisions avec une partie déjà archivée localement
+    saveCurrentGame(game);
+    closeModal();
+    setView('board');
+  });
+}
+
 /* ---------- Router ---------- */
 const app = document.getElementById('app');
 let setupSelectedGame = null;
@@ -188,6 +297,8 @@ function renderHome() {
     editingCustomId = null;
     setView('customnew');
   });
+
+  document.getElementById('goto-import').addEventListener('click', () => openImportModal());
 
   const resumeZone = document.getElementById('resume-zone');
   const current = getCurrentGame();
@@ -495,6 +606,12 @@ function renderBoard() {
     });
     actionsEl.appendChild(newGameBtn);
   }
+
+  const exportBtn = document.createElement('button');
+  exportBtn.className = 'btn-ghost';
+  exportBtn.textContent = 'Exporter (code texte)';
+  exportBtn.addEventListener('click', () => openExportModal(game));
+  actionsEl.appendChild(exportBtn);
 
   const abandonBtn = document.createElement('button');
   abandonBtn.className = 'btn-ghost';

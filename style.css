@@ -456,3 +456,48 @@ table.scoreboard{
   padding-top:16px;
   border-top:1px solid rgba(246,241,226,0.12);
 }
+
+/* Modale import / export */
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(10,20,15,0.6);
+  display:flex; align-items:center; justify-content:center;
+  padding:18px;
+  z-index:100;
+}
+.modal-card{
+  background:var(--paper);
+  border-radius:var(--radius);
+  padding:20px 20px 18px;
+  max-width:440px;
+  width:100%;
+  box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  max-height:85vh;
+  overflow-y:auto;
+}
+.modal-title{
+  font-family:'Fraunces',serif;
+  font-size:1.1rem;
+  margin:0 0 6px;
+}
+.code-textarea{
+  width:100%;
+  min-height:110px;
+  padding:10px;
+  border-radius:8px;
+  border:1.5px solid var(--line);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.78rem;
+  line-height:1.4;
+  word-break:break-all;
+  resize:vertical;
+  margin:6px 0 10px;
+}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.modal-actions .btn-primary, .modal-actions .btn-ghost{flex:1;min-width:120px;width:auto;}
+.import-error{
+  color:var(--crimson);
+  font-size:0.82rem;
+  margin:-2px 0 10px;
+}
+.import-error.hidden{display:none;}
