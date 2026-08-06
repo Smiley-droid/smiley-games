@@ -409,8 +409,8 @@ table.scoreboard{
   .player-col-name{ max-width:80px; }
 }
 
-.board-actions{display:flex;gap:10px;flex-wrap:wrap;}
-.board-actions .btn-primary, .board-actions .btn-ghost{width:auto;flex:1;min-width:150px;}
+.board-actions{display:flex;flex-direction:column;gap:10px;}
+.board-actions .btn-primary, .board-actions .btn-ghost{width:100%;}
 .board-actions .btn-ghost{background:rgba(246,241,226,0.08);color:var(--paper);border-color:rgba(246,241,226,0.3);}
 .board-actions .btn-ghost:hover{background:rgba(246,241,226,0.18);color:var(--paper);}
 
