@@ -503,7 +503,7 @@ function renderBoard() {
     <th>
       <div class="player-col-name">
         <span>${escapeHtml(p.name)}</span>
-        ${game.rounds.length === 0 && !game.finished ? `<button class="remove-col" data-remove-player="${i}" title="Retirer ce joueur" aria-label="Retirer ${escapeHtml(p.name)}">×</button>` : ''}
+        ${!game.finished ? `<button class="remove-col" data-remove-player="${i}" title="Retirer ce joueur" aria-label="Retirer ${escapeHtml(p.name)}">×</button>` : ''}
       </div>
     </th>`).join('');
   thead.appendChild(headRow);
@@ -543,7 +543,7 @@ function renderBoard() {
   tfoot.appendChild(totalRow);
   table.appendChild(tfoot);
 
-  /* Retirer un joueur avant le début */
+  /* Retirer un joueur, à tout moment de la partie */
   table.querySelectorAll('[data-remove-player]').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.dataset.removePlayer, 10);
@@ -551,11 +551,63 @@ function renderBoard() {
         alert('Il faut au moins 2 joueurs.');
         return;
       }
+      if (game.rounds.length > 0) {
+        const name = game.players[idx].name;
+        if (!confirm(`Retirer ${name} ? Son historique de scores dans cette partie sera perdu.`)) return;
+      }
       game.players.splice(idx, 1);
+      game.rounds.forEach(round => round.splice(idx, 1));
       saveCurrentGame(game);
       renderBoard();
     });
   });
+
+  /* Ajouter un joueur en cours de partie */
+  const manageEl = document.getElementById('board-manage-players');
+  if (!game.finished) {
+    const inGameIds = new Set(game.players.map(p => p.id));
+    const available = getPlayers().filter(p => !inGameIds.has(p.id));
+    manageEl.innerHTML = `
+      <div class="setup-block" style="margin-top:0;margin-bottom:16px;">
+        <h3>Ajouter un joueur</h3>
+        <p class="hint">${game.rounds.length > 0 ? `Il recevra 0 point pour les ${game.rounds.length} manche(s) déjà jouée(s).` : 'Sélectionne un joueur enregistré ou ajoutes-en un nouveau.'}</p>
+        <div class="chip-list" id="board-available-chips"></div>
+        <div class="inline-add">
+          <input type="text" id="board-new-player" placeholder="Nom du joueur" maxlength="24">
+          <button id="board-add-player-btn" class="btn-ghost">+ Ajouter</button>
+        </div>
+      </div>`;
+
+    function addPlayerToGame(p) {
+      game.players.push({ id: p.id, name: p.name });
+      game.rounds.forEach(round => round.push(0));
+      saveCurrentGame(game);
+      renderBoard();
+    }
+
+    const chipsEl = document.getElementById('board-available-chips');
+    if (available.length === 0) {
+      chipsEl.innerHTML = '<p class="hint" style="margin:0;">Tous les joueurs enregistrés sont déjà dans la partie.</p>';
+    } else {
+      available.forEach(p => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip';
+        chip.textContent = p.name;
+        chip.addEventListener('click', () => addPlayerToGame(p));
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    const newInput = document.getElementById('board-new-player');
+    document.getElementById('board-add-player-btn').addEventListener('click', () => {
+      const p = ensurePlayer(newInput.value);
+      if (p) addPlayerToGame(p);
+    });
+    newInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('board-add-player-btn').click(); });
+  } else {
+    manageEl.innerHTML = '';
+  }
 
   /* Actions */
   const actionsEl = document.getElementById('board-actions');
