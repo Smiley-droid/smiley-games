@@ -1,7 +1,7 @@
 {
   "name": "Smiley Games",
   "short_name": "Smiley Games",
-  "description": "Cinq Rois, Flip 7, jeux personnalisés et Undercover — avec sauvegarde locale des joueurs.",
+  "description": "Cinq Rois, Flip 7, Roi des Nains, jeux personnalisés et Undercover — avec sauvegarde locale des joueurs.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

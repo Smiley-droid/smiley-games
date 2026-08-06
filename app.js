@@ -18,12 +18,12 @@ const BUILTIN_GAMES = {
     suit: '♦',
     direction: 'asc',
     endMode: 'rounds',
-    defaultRounds: 13,
+    defaultRounds: 11,
     roundWord: 'Manche',
     optionsHtml() {
       return `<div class="option-row">
         <label for="opt-maxrounds">Nombre de manches</label>
-        <input type="number" id="opt-maxrounds" min="1" max="20" value="13">
+        <input type="number" id="opt-maxrounds" min="1" max="20" value="11">
       </div>`;
     }
   },
@@ -38,6 +38,20 @@ const BUILTIN_GAMES = {
       return `<div class="option-row">
         <label for="opt-target">Score cible</label>
         <input type="number" id="opt-target" min="10" step="5" value="200">
+      </div>`;
+    }
+  },
+  roidesnains: {
+    label: 'Le Roi des Nains',
+    suit: '👑',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 7,
+    roundWord: 'Donne',
+    optionsHtml() {
+      return `<div class="option-row">
+        <label for="opt-maxrounds">Nombre de donnes</label>
+        <input type="number" id="opt-maxrounds" min="1" max="20" value="7">
       </div>`;
     }
   }
@@ -252,8 +266,9 @@ function renderHome() {
 
   const picker = document.getElementById('game-picker');
   const builtinDescr = {
-    cinqrois: '13 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
-    flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.'
+    cinqrois: '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
+    flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
+    roidesnains: '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.'
   };
 
   function makeCard(type, def, descr) {
@@ -274,6 +289,7 @@ function renderHome() {
 
   picker.appendChild(makeCard('cinqrois', BUILTIN_GAMES.cinqrois, builtinDescr.cinqrois));
   picker.appendChild(makeCard('flip7', BUILTIN_GAMES.flip7, builtinDescr.flip7));
+  picker.appendChild(makeCard('roidesnains', BUILTIN_GAMES.roidesnains, builtinDescr.roidesnains));
 
   const undercoverCard = document.createElement('button');
   undercoverCard.className = 'game-card';
