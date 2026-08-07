@@ -20,12 +20,7 @@ const BUILTIN_GAMES = {
     endMode: 'rounds',
     defaultRounds: 11,
     roundWord: 'Manche',
-    optionsHtml() {
-      return `<div class="option-row">
-        <label for="opt-maxrounds">Nombre de manches</label>
-        <input type="number" id="opt-maxrounds" min="1" max="20" value="11">
-      </div>`;
-    }
+    allowNegative: false
   },
   flip7: {
     label: 'Flip 7',
@@ -34,12 +29,7 @@ const BUILTIN_GAMES = {
     endMode: 'target',
     defaultTarget: 200,
     roundWord: 'Tour',
-    optionsHtml() {
-      return `<div class="option-row">
-        <label for="opt-target">Score cible</label>
-        <input type="number" id="opt-target" min="10" step="5" value="200">
-      </div>`;
-    }
+    allowNegative: false
   },
   roidesnains: {
     label: 'Le Roi des Nains',
@@ -48,12 +38,7 @@ const BUILTIN_GAMES = {
     endMode: 'rounds',
     defaultRounds: 7,
     roundWord: 'Donne',
-    optionsHtml() {
-      return `<div class="option-row">
-        <label for="opt-maxrounds">Nombre de donnes</label>
-        <input type="number" id="opt-maxrounds" min="1" max="20" value="7">
-      </div>`;
-    }
+    allowNegative: true
   }
 };
 
@@ -118,7 +103,8 @@ function getGameDef(type) {
       endMode: cg.endMode,
       defaultRounds: cg.roundsCount,
       defaultTarget: cg.target,
-      roundWord: cg.roundWord || 'Manche'
+      roundWord: cg.roundWord || 'Manche',
+      allowNegative: !!cg.allowNegative
     };
   }
   return null;
@@ -528,7 +514,7 @@ function renderBoard() {
     const tr = document.createElement('tr');
     let cells = `<td>${roundLabel(gameDef, nextRoundNum)}</td>`;
     game.players.forEach((p, i) => {
-      cells += `<td><input type="number" data-score-input="${i}" placeholder="0"></td>`;
+      cells += `<td><input type="number" ${gameDef.allowNegative ? '' : 'min="0"'} data-score-input="${i}" placeholder="0"></td>`;
     });
     tr.innerHTML = cells;
     tbody.appendChild(tr);
@@ -643,8 +629,10 @@ function renderBoard() {
       const round = new Array(game.players.length).fill(0);
       inputs.forEach(inp => {
         const i = parseInt(inp.dataset.scoreInput, 10);
-        const v = parseInt(inp.value, 10);
-        round[i] = Number.isFinite(v) ? v : 0;
+        let v = parseInt(inp.value, 10);
+        if (!Number.isFinite(v)) v = 0;
+        if (!gameDef.allowNegative && v < 0) v = 0;
+        round[i] = v;
       });
       game.rounds.push(round);
       const newTotals = computeTotals(game);
@@ -854,6 +842,7 @@ function renderCustomForm() {
     document.querySelector(`input[name="cg-endmode"][value="${existing.endMode}"]`).checked = true;
     if (existing.endMode === 'rounds') maxRoundsInput.value = existing.roundsCount;
     else targetInput.value = existing.target;
+    document.querySelector(`input[name="cg-negative"][value="${existing.allowNegative ? 'yes' : 'no'}"]`).checked = true;
   }
 
   function syncEndModeRows() {
@@ -877,6 +866,7 @@ function renderCustomForm() {
     cg.endMode = endMode;
     cg.roundWord = roundWord;
     cg.suit = existing ? existing.suit : '★';
+    cg.allowNegative = document.querySelector('input[name="cg-negative"]:checked').value === 'yes';
     if (endMode === 'rounds') {
       const v = parseInt(maxRoundsInput.value, 10);
       cg.roundsCount = (v && v > 0) ? v : 10;
