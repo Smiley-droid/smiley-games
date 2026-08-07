@@ -230,6 +230,7 @@ function openImportModal() {
     }
     game.id = uid(); // évite les collisions avec une partie déjà archivée localement
     saveCurrentGame(game);
+    boardAddPlayerOpen = false;
     closeModal();
     setView('board');
   });
@@ -240,6 +241,7 @@ const app = document.getElementById('app');
 let setupSelectedGame = null;
 let setupSelectedPlayers = [];
 let editingCustomId = null;
+let boardAddPlayerOpen = false;
 
 function setView(view, payload) {
   document.querySelectorAll('.nav-btn').forEach(b => {
@@ -329,7 +331,7 @@ function renderHome() {
           </div>
           <button class="btn-ghost" id="resume-btn" style="border-color:var(--felt-1);color:var(--felt-1);">Reprendre →</button>
         </div>`;
-      document.getElementById('resume-btn').addEventListener('click', () => setView('board'));
+      document.getElementById('resume-btn').addEventListener('click', () => { boardAddPlayerOpen = false; setView('board'); });
     }
   }
 }
@@ -428,6 +430,7 @@ function renderSetup() {
       game.maxRounds = (v && v > 0) ? v : (gameDef.defaultRounds || 10);
     }
     saveCurrentGame(game);
+    boardAddPlayerOpen = false;
     setView('board');
   });
 }
@@ -562,49 +565,67 @@ function renderBoard() {
     });
   });
 
-  /* Ajouter un joueur en cours de partie */
+  /* Ajouter un joueur en cours de partie (derrière un bouton, pour ne pas prendre trop de place) */
   const manageEl = document.getElementById('board-manage-players');
   if (!game.finished) {
-    const inGameIds = new Set(game.players.map(p => p.id));
-    const available = getPlayers().filter(p => !inGameIds.has(p.id));
-    manageEl.innerHTML = `
-      <div class="setup-block" style="margin-top:0;margin-bottom:16px;">
-        <h3>Ajouter un joueur</h3>
-        <p class="hint">${game.rounds.length > 0 ? `Il recevra 0 point pour les ${game.rounds.length} manche(s) déjà jouée(s).` : 'Sélectionne un joueur enregistré ou ajoutes-en un nouveau.'}</p>
-        <div class="chip-list" id="board-available-chips"></div>
-        <div class="inline-add">
-          <input type="text" id="board-new-player" placeholder="Nom du joueur" maxlength="24">
-          <button id="board-add-player-btn" class="btn-ghost">+ Ajouter</button>
-        </div>
-      </div>`;
-
-    function addPlayerToGame(p) {
-      game.players.push({ id: p.id, name: p.name });
-      game.rounds.forEach(round => round.push(0));
-      saveCurrentGame(game);
-      renderBoard();
-    }
-
-    const chipsEl = document.getElementById('board-available-chips');
-    if (available.length === 0) {
-      chipsEl.innerHTML = '<p class="hint" style="margin:0;">Tous les joueurs enregistrés sont déjà dans la partie.</p>';
-    } else {
-      available.forEach(p => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'chip';
-        chip.textContent = p.name;
-        chip.addEventListener('click', () => addPlayerToGame(p));
-        chipsEl.appendChild(chip);
+    if (!boardAddPlayerOpen) {
+      manageEl.innerHTML = `<button class="btn-ghost board-toggle-add" id="board-toggle-add-btn">+ Ajouter un joueur</button>`;
+      document.getElementById('board-toggle-add-btn').addEventListener('click', () => {
+        boardAddPlayerOpen = true;
+        renderBoard();
       });
-    }
+    } else {
+      const inGameIds = new Set(game.players.map(p => p.id));
+      const available = getPlayers().filter(p => !inGameIds.has(p.id));
+      manageEl.innerHTML = `
+        <div class="setup-block" style="margin-top:0;margin-bottom:16px;">
+          <div class="setup-block-head">
+            <h3>Ajouter un joueur</h3>
+            <button class="icon-btn" id="board-close-add-btn" style="color:#6b6550;">Fermer ✕</button>
+          </div>
+          <p class="hint">${game.rounds.length > 0 ? `Il recevra 0 point pour les ${game.rounds.length} manche(s) déjà jouée(s).` : 'Sélectionne un joueur enregistré ou ajoutes-en un nouveau.'}</p>
+          <div class="chip-list" id="board-available-chips"></div>
+          <div class="inline-add">
+            <input type="text" id="board-new-player" placeholder="Nom du joueur" maxlength="24">
+            <button id="board-add-player-btn" class="btn-ghost">+ Ajouter</button>
+          </div>
+        </div>`;
 
-    const newInput = document.getElementById('board-new-player');
-    document.getElementById('board-add-player-btn').addEventListener('click', () => {
-      const p = ensurePlayer(newInput.value);
-      if (p) addPlayerToGame(p);
-    });
-    newInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('board-add-player-btn').click(); });
+      document.getElementById('board-close-add-btn').addEventListener('click', () => {
+        boardAddPlayerOpen = false;
+        renderBoard();
+      });
+
+      function addPlayerToGame(p) {
+        game.players.push({ id: p.id, name: p.name });
+        game.rounds.forEach(round => round.push(0));
+        saveCurrentGame(game);
+        boardAddPlayerOpen = false;
+        renderBoard();
+      }
+
+      const chipsEl = document.getElementById('board-available-chips');
+      if (available.length === 0) {
+        chipsEl.innerHTML = '<p class="hint" style="margin:0;">Tous les joueurs enregistrés sont déjà dans la partie.</p>';
+      } else {
+        available.forEach(p => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'chip';
+          chip.textContent = p.name;
+          chip.addEventListener('click', () => addPlayerToGame(p));
+          chipsEl.appendChild(chip);
+        });
+      }
+
+      const newInput = document.getElementById('board-new-player');
+      newInput.focus();
+      document.getElementById('board-add-player-btn').addEventListener('click', () => {
+        const p = ensurePlayer(newInput.value);
+        if (p) addPlayerToGame(p);
+      });
+      newInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('board-add-player-btn').click(); });
+    }
   } else {
     manageEl.innerHTML = '';
   }
