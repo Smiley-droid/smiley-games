@@ -569,7 +569,7 @@ function renderBoard() {
   const manageEl = document.getElementById('board-manage-players');
   if (!game.finished) {
     if (!boardAddPlayerOpen) {
-      manageEl.innerHTML = `<button class="btn-ghost board-toggle-add" id="board-toggle-add-btn">+ Ajouter un joueur</button>`;
+      manageEl.innerHTML = `<button class="board-toggle-add" id="board-toggle-add-btn">+ Ajouter un joueur</button>`;
       document.getElementById('board-toggle-add-btn').addEventListener('click', () => {
         boardAddPlayerOpen = true;
         renderBoard();

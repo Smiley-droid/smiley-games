@@ -244,7 +244,17 @@ body{
 .hint{font-size:0.82rem;color:#5a543f;margin:0 0 12px;}
 .setup-block-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .setup-block-head h3{margin:0;}
-.board-toggle-add{width:100%;background:rgba(246,241,226,0.08);color:var(--paper);border:1.5px dashed rgba(246,241,226,0.3);}
+.board-toggle-add{
+  width:100%;
+  background:rgba(246,241,226,0.08);
+  color:var(--paper);
+  border:1.5px dashed rgba(246,241,226,0.3);
+  padding:9px 14px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:0.85rem;
+  cursor:pointer;
+}
 .board-toggle-add:hover{background:rgba(246,241,226,0.16);}
 
 .chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
