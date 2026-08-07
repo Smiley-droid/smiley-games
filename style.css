@@ -254,7 +254,7 @@ body{
   font-weight:600;
   font-size:0.85rem;
   cursor:pointer;
-  margin-bottom:16px;
+  margin-bottom:10px;
 }
 .board-toggle-add:hover{background:rgba(246,241,226,0.16);}
 
