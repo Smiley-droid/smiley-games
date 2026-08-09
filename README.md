@@ -20,14 +20,7 @@ Petit site (HTML/CSS/JS pur, sans dépendance) pour jouer et compter les points 
 
 ## Utilisation
 
-Ouvrez simplement `index.html` dans un navigateur, ou hébergez le dossier tel quel (par ex. avec GitHub Pages).
-
-```
-git clone <ce-dépôt>
-cd <dossier>
-python3 -m http.server 8000
-# puis ouvrez http://localhost:8000
-```
+Le site est accessible en ligne. Ce dépôt est public uniquement pour permettre l'hébergement via GitHub Pages — voir la section Licence ci-dessous.
 
 ## Structure
 
@@ -35,3 +28,10 @@ python3 -m http.server 8000
 - `style.css` — thème visuel (table de jeu / feuille de marque)
 - `app.js` — logique de l'application et gestion du localStorage
 - `undercover/` — mini-site indépendant du jeu Undercover
+
+## Licence
+
+© 2026 Smiley-droid — **Tous droits réservés.**
+
+Ce dépôt est public uniquement pour des raisons techniques (hébergement GitHub Pages). Cela ne constitue **aucune autorisation** de copier, réutiliser, redistribuer ou modifier ce code, en tout ou partie. Voir le fichier [`LICENSE`](./LICENSE) pour le détail des conditions.
+

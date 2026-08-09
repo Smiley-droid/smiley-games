@@ -1,6 +1,9 @@
 /* =========================================================
    Smiley Games — Cinq Rois, Flip 7 & jeux personnalisés
    Stockage 100% local (localStorage), aucune donnée réseau.
+   © 2026 Smiley-droid — Tous droits réservés.
+   Aucune copie, reproduction, distribution ou réutilisation de ce
+   code n'est autorisée sans permission écrite préalable. Voir /LICENSE.
    ========================================================= */
 
 const STORAGE_KEYS = {
