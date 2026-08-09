@@ -324,8 +324,10 @@ body{
 .btn-large{font-size:1.02rem;padding:15px 20px;}
 
 /* Board */
-.board-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;}
-.board-title-row{display:flex;align-items:center;gap:8px;}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.board-title-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.board-title-row .view-title{margin:0;}
+.board-head .board-title-row{margin-bottom:0;}
 .rules-btn{
   width:26px; height:26px;
   border-radius:50%;
