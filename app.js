@@ -566,7 +566,7 @@ function renderBoard() {
     const tr = document.createElement('tr');
     let cells = `<td>${roundLabel(gameDef, nextRoundNum)}</td>`;
     game.players.forEach((p, i) => {
-      cells += `<td><input type="number" ${gameDef.allowNegative ? '' : 'min="0"'} data-score-input="${i}" placeholder="0"></td>`;
+      cells += `<td><input type="number" ${gameDef.allowNegative ? '' : 'inputmode="numeric" min="0"'} data-score-input="${i}" placeholder="0"></td>`;
     });
     tr.innerHTML = cells;
     tbody.appendChild(tr);
