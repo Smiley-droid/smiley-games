@@ -325,6 +325,21 @@ body{
 
 /* Board */
 .board-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;}
+.board-title-row{display:flex;align-items:center;gap:8px;}
+.rules-btn{
+  width:26px; height:26px;
+  border-radius:50%;
+  border:1.5px solid rgba(246,241,226,0.4);
+  background:rgba(246,241,226,0.08);
+  color:var(--paper);
+  font-family:'Fraunces',serif;
+  font-weight:700;
+  font-size:0.85rem;
+  line-height:1;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.rules-btn:hover{background:rgba(246,241,226,0.18);}
 .board-meta{color:rgba(246,241,226,0.7);font-size:0.85rem;}
 
 .winner-banner{

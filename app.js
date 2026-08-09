@@ -97,7 +97,7 @@ function ensurePlayer(name) {
    { label, suit, direction, endMode, defaultRounds, defaultTarget, roundWord, custom } */
 function getGameDef(type) {
   if (BUILTIN_GAMES[type]) {
-    return Object.assign({ custom: false }, BUILTIN_GAMES[type]);
+    return Object.assign({ custom: false, id: type }, BUILTIN_GAMES[type]);
   }
   if (typeof type === 'string' && type.startsWith('custom:')) {
     const id = type.slice(7);
@@ -120,6 +120,44 @@ function getGameDef(type) {
 }
 
 function roundLabel(gameDef, n) { return `${gameDef.roundWord} ${n}`; }
+
+/* ---------- Règles des jeux (affichées via le bouton "?") ---------- */
+const BUILTIN_RULES = {
+  cinqrois: `<p>11 manches, une par nombre de cartes distribuées (de 3 à 13). Chaque manche, on cherche à se débarrasser de sa main en formant des <strong>suites</strong> (cartes qui se suivent, même couleur) et des <strong>familles</strong> (même valeur, couleurs différentes).</p>
+    <p>À la fin de chaque manche, les cartes qui restent en main comptent en points de pénalité (figures = 10, As = 1, etc. selon vos règles de table). Le score le plus <strong>bas</strong> à la fin des 11 manches gagne.</p>`,
+  flip7: `<p>Jeu de prise de risque : à chaque tour, on retourne des cartes une par une et on peut s'arrêter ("rester") ou continuer ("flip"). Si on retourne deux fois la même valeur, on est éliminé du tour sans marquer de points.</p>
+    <p>Réunir 7 cartes différentes dans un tour rapporte un bonus de +15. Premier joueur à atteindre <strong>200 points</strong> (score le plus haut) déclenche la fin de la partie.</p>`,
+  roidesnains: `<p>7 donnes, chacune avec une "quête" différente (annoncée avant de jouer) qui détermine comment les points sont gagnés ou perdus ce tour-là — d'où la possibilité de scores négatifs.</p>
+    <p>Après les 7 donnes, le total le plus <strong>haut</strong> gagne.</p>`,
+  caracole: `<p>Jeu de combinaisons (52 cartes) : paires, brelans, carrés, ou suites de 3+ cartes de même couleur à poser sur la pile. Un joueur peut "caracoler" quand il lui reste 10 points ou moins en main.</p>
+    <p>Valeur des cartes : 1 à 7 = leur valeur, <strong>8 = 0</strong>, Valet = 11, Dame = 12, Roi = 13. Le vainqueur de la manche marque 0, le "caracoleur" qui ne gagne pas prend 30 points de pénalité, les autres marquent les points restant en main.</p>
+    <p>Dès qu'un joueur <strong>dépasse 100 points</strong> au total, la partie s'arrête : le total le plus <strong>bas</strong> gagne.</p>`
+};
+
+function getRulesHtml(gameDef) {
+  if (!gameDef.custom) {
+    return BUILTIN_RULES[gameDef.id] || '<p>Règles non disponibles.</p>';
+  }
+  // Jeu personnalisé : pas de vraies règles de carte connues, on explique le fonctionnement configuré.
+  const endText = gameDef.endMode === 'target'
+    ? `dès qu'un total atteint ou dépasse <strong>${gameDef.defaultTarget} points</strong>`
+    : `après <strong>${gameDef.defaultRounds} ${gameDef.roundWord.toLowerCase()}(s)</strong>`;
+  const winText = gameDef.direction === 'asc' ? 'le score le plus <strong>bas</strong> gagne' : 'le score le plus <strong>haut</strong> gagne';
+  return `<p>Jeu personnalisé — les règles de cartes précises se jouent entre vous à table, Smiley Games se charge juste des totaux.</p>
+    <p>La partie se termine ${endText}. À ce moment-là, ${winText}.</p>
+    <p>Scores négatifs pour une ${gameDef.roundWord.toLowerCase()} : ${gameDef.allowNegative ? '<strong>autorisés</strong>' : '<strong>non autorisés</strong>'}.</p>`;
+}
+
+function openRulesModal(gameDef) {
+  openModal(`
+    <h3 class="modal-title">${gameDef.suit} Règles — ${escapeHtml(gameDef.label)}</h3>
+    ${getRulesHtml(gameDef)}
+    <div class="modal-actions">
+      <button class="btn-primary" id="rules-close-btn">Fermer</button>
+    </div>`);
+  document.getElementById('rules-close-btn').addEventListener('click', closeModal);
+}
+
 
 /* ---------- Import / export de partie (code texte encodé en hexadécimal) ----------
    Remarque : il s'agit d'un encodage réversible (XOR + hexadécimal), pas d'un
@@ -343,6 +381,7 @@ function renderSetup() {
   app.appendChild(tpl.content.cloneNode(true));
 
   document.getElementById('setup-title').textContent = `${gameDef.suit} ${gameDef.label} — nouvelle partie`;
+  document.getElementById('setup-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('home'));
 
   const listEl = document.getElementById('setup-player-list');
@@ -478,6 +517,7 @@ function renderBoard() {
 
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('home'));
   document.getElementById('board-title').textContent = `${gameDef.suit} ${gameDef.label}`;
+  document.getElementById('board-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
 
   const totals = computeTotals(game);
   const ranking = getRanking(gameDef, totals);
