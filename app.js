@@ -39,6 +39,15 @@ const BUILTIN_GAMES = {
     defaultRounds: 7,
     roundWord: 'Donne',
     allowNegative: true
+  },
+  caracole: {
+    label: 'La Caracole',
+    suit: '🐌',
+    direction: 'asc',
+    endMode: 'target',
+    defaultTarget: 100,
+    roundWord: 'Manche',
+    allowNegative: false
   }
 };
 
@@ -256,7 +265,8 @@ function renderHome() {
   const builtinDescr = {
     cinqrois: '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
     flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
-    roidesnains: '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.'
+    roidesnains: '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
+    caracole: 'Combinaisons de cartes, le 8 vaut 0. Dès qu\'un joueur dépasse 100, le plus bas total gagne.'
   };
 
   function makeCard(type, def, descr) {
@@ -278,6 +288,7 @@ function renderHome() {
   picker.appendChild(makeCard('cinqrois', BUILTIN_GAMES.cinqrois, builtinDescr.cinqrois));
   picker.appendChild(makeCard('flip7', BUILTIN_GAMES.flip7, builtinDescr.flip7));
   picker.appendChild(makeCard('roidesnains', BUILTIN_GAMES.roidesnains, builtinDescr.roidesnains));
+  picker.appendChild(makeCard('caracole', BUILTIN_GAMES.caracole, builtinDescr.caracole));
 
   const undercoverCard = document.createElement('button');
   undercoverCard.className = 'game-card';
@@ -441,10 +452,11 @@ function checkGameEnd(gameDef, game, totals) {
   if (gameDef.endMode === 'target') {
     if (game.rounds.length === 0) return false;
     const target = game.target || gameDef.defaultTarget || 100;
-    // L'objectif de points ne déclenche la fin que pour un score qui monte
-    // (score le plus haut gagne). Pour un score qui descend, seule la fin
-    // manuelle ("Terminer la partie") a du sens.
-    return gameDef.direction === 'desc' && Math.max(...totals) >= target;
+    // L'objectif déclenche la fin dès qu'un total atteint/dépasse la cible,
+    // que ce soit pour un score qui doit monter (le plus haut gagne) ou pour
+    // un score qui doit rester bas (le plus haut qui dépasse la cible sort
+    // la partie, et c'est alors le plus bas total qui gagne — ex. Caracole).
+    return Math.max(...totals) >= target;
   }
   return game.rounds.length >= (game.maxRounds || gameDef.defaultRounds || 10);
 }

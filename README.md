@@ -6,6 +6,7 @@ Petit site (HTML/CSS/JS pur, sans dépendance) pour jouer et compter les points 
 
 - **Cinq Rois** — 11 manches, le score le plus **bas** gagne.
 - **Le Roi des Nains** — 7 donnes, le score le plus **haut** gagne.
+- **La Caracole** — combinaisons de cartes (le 8 vaut 0), objectif 100 points, le score le plus **bas** gagne.
 - **Flip 7** — objectif 200 points, le score le plus **haut** gagne (fin automatique dès qu'un joueur atteint le score cible).
 - **Jeux personnalisés** — crée ton propre jeu : nom, sens du score, fin de partie (nombre de manches ou objectif de points), tout est réglable.
 - **Undercover** — jeu de bluff et de déduction à un seul téléphone (mini-site dédié dans `/undercover`).
