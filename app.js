@@ -986,5 +986,28 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+/* ---------- Numéro de version (nombre de commits GitHub) ---------- */
+async function loadVersionLabel() {
+  const el = document.getElementById('version-line');
+  if (!el) return;
+  try {
+    const res = await fetch('https://api.github.com/repos/Smiley-droid/smiley-games/commits?per_page=1');
+    if (!res.ok) return;
+    const link = res.headers.get('Link') || res.headers.get('link');
+    let count = null;
+    if (link) {
+      const match = link.match(/[?&]page=(\d+)>;\s*rel="last"/);
+      if (match) count = parseInt(match[1], 10);
+    } else {
+      const data = await res.json();
+      if (Array.isArray(data)) count = data.length;
+    }
+    if (count) el.textContent = `Version n°${count}`;
+  } catch (e) {
+    console.error('Impossible de récupérer le numéro de version', e);
+  }
+}
+loadVersionLabel();
+
 /* ---------- Démarrage ---------- */
 setView('home');
