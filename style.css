@@ -496,6 +496,17 @@ table.scoreboard{
   padding-top:16px;
   border-top:1px solid rgba(246,241,226,0.12);
 }
+.foot-credit{
+  margin-top:6px;
+  color:rgba(246,241,226,0.65);
+  font-weight:600;
+}
+.foot-credit a{
+  color:var(--gold);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.foot-credit a:hover{color:#e8c877;}
 
 /* Modale import / export */
 .modal-overlay{
