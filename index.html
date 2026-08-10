@@ -67,7 +67,9 @@
 <template id="tpl-home">
   <section class="view view-home">
     <h2 class="view-title">Choisir une partie</h2>
+    <input type="search" id="game-search" class="game-search" placeholder="🔍 Rechercher un jeu…" autocomplete="off">
     <div class="game-picker" id="game-picker"></div>
+    <p class="empty-note hidden" id="game-search-empty" style="color:rgba(246,241,226,0.7);">Aucun jeu ne correspond à ta recherche.</p>
 
     <button class="create-custom-link" id="goto-create-custom">+ Créer un jeu personnalisé</button>
     <button class="create-custom-link" id="goto-import">📥 Importer une partie (code texte)</button>

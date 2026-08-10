@@ -313,6 +313,7 @@ function renderHome() {
   function makeCard(type, def, descr) {
     const btn = document.createElement('button');
     btn.className = 'game-card';
+    btn.dataset.search = normalize(def.label);
     btn.innerHTML = `
       <span class="game-card-suit">${def.suit}</span>
       <h3>${escapeHtml(def.label)}</h3>
@@ -333,6 +334,7 @@ function renderHome() {
 
   const undercoverCard = document.createElement('button');
   undercoverCard.className = 'game-card';
+  undercoverCard.dataset.search = normalize('Undercover bluff déduction');
   undercoverCard.innerHTML = `
     <span class="game-card-suit">🕵️</span>
     <h3>Undercover</h3>
@@ -347,6 +349,19 @@ function renderHome() {
       ? `Objectif ${def.defaultTarget} points. ${def.direction === 'asc' ? 'Score le plus bas gagne.' : 'Score le plus haut gagne.'}`
       : `${def.defaultRounds} manches. ${def.direction === 'asc' ? 'Score le plus bas gagne.' : 'Score le plus haut gagne.'}`;
     picker.appendChild(makeCard('custom:' + cg.id, def, descr));
+  });
+
+  const searchInput = document.getElementById('game-search');
+  const emptyNote = document.getElementById('game-search-empty');
+  searchInput.addEventListener('input', () => {
+    const q = normalize(searchInput.value.trim());
+    let visibleCount = 0;
+    picker.querySelectorAll('.game-card').forEach(card => {
+      const match = !q || card.dataset.search.includes(q);
+      card.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+    emptyNote.classList.toggle('hidden', visibleCount > 0);
   });
 
   document.getElementById('goto-create-custom').addEventListener('click', () => {
@@ -995,6 +1010,10 @@ function renderHistory() {
 }
 
 /* ---------- Utilitaires ---------- */
+function normalize(str) {
+  return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function joinNames(names) {
   if (names.length <= 1) return names.join('');
   return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`;
