@@ -394,8 +394,7 @@ table.scoreboard{
   font-family:'Inter',sans-serif;
   color:#6b6550;
   font-size:0.72rem;
-  white-space:normal;
-  max-width:60px;
+  white-space:nowrap;
   padding-left:10px;
   padding-right:6px;
   position:sticky;
