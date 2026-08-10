@@ -51,6 +51,60 @@ const BUILTIN_GAMES = {
     defaultTarget: 100,
     roundWord: 'Manche',
     allowNegative: false
+  },
+  tarot: {
+    label: 'Tarot',
+    suit: '🃏',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 4,
+    roundWord: 'Donne',
+    allowNegative: true
+  },
+  belote: {
+    label: 'Belote',
+    suit: '♣',
+    direction: 'desc',
+    endMode: 'target',
+    defaultTarget: 501,
+    roundWord: 'Donne',
+    allowNegative: true
+  },
+  rami: {
+    label: 'Rami',
+    suit: '♠',
+    direction: 'asc',
+    endMode: 'rounds',
+    defaultRounds: 10,
+    roundWord: 'Manche',
+    allowNegative: false
+  },
+  skyjo: {
+    label: 'Skyjo',
+    suit: '🎯',
+    direction: 'asc',
+    endMode: 'target',
+    defaultTarget: 100,
+    roundWord: 'Manche',
+    allowNegative: true
+  },
+  uno: {
+    label: 'Uno',
+    suit: '🔄',
+    direction: 'asc',
+    endMode: 'target',
+    defaultTarget: 500,
+    roundWord: 'Manche',
+    allowNegative: false
+  },
+  yams: {
+    label: 'Yams',
+    suit: '🎲',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 13,
+    roundWord: 'Catégorie',
+    allowNegative: false
   }
 };
 
@@ -134,7 +188,19 @@ const BUILTIN_RULES = {
     <p>Après les 7 donnes, le total le plus <strong>haut</strong> gagne.</p>`,
   caracole: `<p>Jeu de combinaisons (52 cartes) : paires, brelans, carrés, ou suites de 3+ cartes de même couleur à poser sur la pile. Un joueur peut "caracoler" quand il lui reste 10 points ou moins en main.</p>
     <p>Valeur des cartes : 1 à 7 = leur valeur, <strong>8 = 0</strong>, Valet = 11, Dame = 12, Roi = 13. Le vainqueur de la manche marque 0, le "caracoleur" qui ne gagne pas prend 30 points de pénalité, les autres marquent les points restant en main.</p>
-    <p>Dès qu'un joueur <strong>dépasse 100 points</strong> au total, la partie s'arrête : le total le plus <strong>bas</strong> gagne.</p>`
+    <p>Dès qu'un joueur <strong>dépasse 100 points</strong> au total, la partie s'arrête : le total le plus <strong>bas</strong> gagne.</p>`,
+  tarot: `<p>Jeu à 4 (ou 3/5) joueurs avec le Fou, les 21 atouts et les rois. À chaque donne, un joueur (le "preneur") annonce un contrat et joue seul contre les autres, qui font "défense".</p>
+    <p>Selon le nombre de points au Bout ramassés, le preneur gagne ou perd des points — qui viennent en négatif/positif selon les cas, d'où l'utilité des scores négatifs. Sur plusieurs donnes, le total le plus <strong>haut</strong> gagne.</p>`,
+  belote: `<p>Traditionnellement en 2 équipes de 2. Chaque donne, une couleur est choisie comme atout (par annonce ou "prise"), et l'équipe qui prend doit ramasser plus de la moitié des 162 points de la donne (ou faire une "belote-rebelote", un "capot", etc.).</p>
+    <p>Comme l'appli compte par "joueur", utilisez un nom par équipe (ex. "Nous" / "Eux"). Premier total à atteindre <strong>501 points</strong> gagne.</p>`,
+  rami: `<p>Chaque joueur essaie de se débarrasser de sa main en formant des combinaisons : <strong>suites</strong> (cartes qui se suivent, même couleur) et <strong>brelans/carrés</strong> (même valeur).</p>
+    <p>À la fin d'une manche, les cartes qui restent en main comptent en pénalité. Après plusieurs manches, le score le plus <strong>bas</strong> gagne.</p>`,
+  skyjo: `<p>Chaque joueur a une grille de 12 cartes face cachée (valeurs de -2 à 12) et en retourne progressivement en piochant/défaussant, en essayant d'avoir le total le plus bas.</p>
+    <p>Dès qu'un joueur retourne sa dernière carte, un ultime tour est joué puis les grilles sont révélées. Dès qu'un total <strong>atteint 100</strong>, la partie s'arrête : le plus <strong>bas</strong> total gagne.</p>`,
+  uno: `<p>Le premier joueur à vider sa main remporte la manche et marque 0. Les autres comptent les points des cartes qui leur restent en main (cartes chiffrées = leur valeur, cartes spéciales = 20, Joker/+4 = 50).</p>
+    <p>Ces points s'accumulent manche après manche. Premier joueur à <strong>atteindre 500 points perd</strong> — donc le total le plus <strong>bas</strong> gagne à l'arrêt de la partie.</p>`,
+  yams: `<p>Feuille de 13 catégories (brelan, full, suite, yams, etc.) à remplir une par une au fil des lancers de 5 dés, chacune ne pouvant être utilisée qu'une seule fois.</p>
+    <p>Dans l'appli, chaque "manche" correspond à une catégorie remplie : entrez le score obtenu (0 si la catégorie est ratée/barrée). Après les 13 catégories, le total le plus <strong>haut</strong> gagne.</p>`
 };
 
 function getRulesHtml(gameDef) {
@@ -348,7 +414,13 @@ function renderHome() {
     cinqrois: '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
     flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
     roidesnains: '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
-    caracole: 'Combinaisons de cartes, le 8 vaut 0. Dès qu\'un joueur dépasse 100, le plus bas total gagne.'
+    caracole: 'Combinaisons de cartes, le 8 vaut 0. Dès qu\'un joueur dépasse 100, le plus bas total gagne.',
+    tarot: 'Le preneur contre la défense. Scores positifs ou négatifs selon les donnes.',
+    belote: 'Par équipes de 2. Objectif 501 points, atout et annonces.',
+    rami: 'Suites et brelans pour vider sa main. Le score le plus bas gagne.',
+    skyjo: 'Grille de cartes cachées, de -2 à 12. Objectif 100, le plus bas gagne.',
+    uno: 'Premier à vider sa main marque 0. Objectif 500, le plus bas gagne.',
+    yams: '13 catégories de dés à remplir. Le score le plus haut gagne.'
   };
 
   function makeCard(type, def, descr) {
@@ -372,6 +444,12 @@ function renderHome() {
   picker.appendChild(makeCard('flip7', BUILTIN_GAMES.flip7, builtinDescr.flip7));
   picker.appendChild(makeCard('roidesnains', BUILTIN_GAMES.roidesnains, builtinDescr.roidesnains));
   picker.appendChild(makeCard('caracole', BUILTIN_GAMES.caracole, builtinDescr.caracole));
+  picker.appendChild(makeCard('tarot', BUILTIN_GAMES.tarot, builtinDescr.tarot));
+  picker.appendChild(makeCard('belote', BUILTIN_GAMES.belote, builtinDescr.belote));
+  picker.appendChild(makeCard('rami', BUILTIN_GAMES.rami, builtinDescr.rami));
+  picker.appendChild(makeCard('skyjo', BUILTIN_GAMES.skyjo, builtinDescr.skyjo));
+  picker.appendChild(makeCard('uno', BUILTIN_GAMES.uno, builtinDescr.uno));
+  picker.appendChild(makeCard('yams', BUILTIN_GAMES.yams, builtinDescr.yams));
 
   const undercoverCard = document.createElement('button');
   undercoverCard.className = 'game-card';
