@@ -490,6 +490,13 @@ function getRanking(gameDef, totals) {
   return order;
 }
 
+/* Retourne les indices de tous les joueurs à égalité en tête (gère les égalités) */
+function getLeaderIndices(gameDef, totals) {
+  if (!totals.length) return [];
+  const best = gameDef.direction === 'asc' ? Math.min(...totals) : Math.max(...totals);
+  return totals.reduce((acc, t, i) => { if (t === best) acc.push(i); return acc; }, []);
+}
+
 function checkGameEnd(gameDef, game, totals) {
   if (gameDef.endMode === 'target') {
     if (game.rounds.length === 0) return false;
@@ -523,8 +530,7 @@ function renderBoard() {
   document.getElementById('board-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
 
   const totals = computeTotals(game);
-  const ranking = getRanking(gameDef, totals);
-  const leaderIdx = ranking.length ? ranking[0].i : -1;
+  const leaderIndices = getLeaderIndices(gameDef, totals);
 
   document.getElementById('board-meta').textContent = gameDef.endMode === 'target'
     ? `Objectif : ${game.target} points · ${gameDef.direction === 'asc' ? 'Score le plus bas gagne' : 'Meilleur score gagne'}`
@@ -532,9 +538,16 @@ function renderBoard() {
 
   const bannerEl = document.getElementById('winner-banner');
   if (game.finished) {
-    const winner = game.players[game.winnerId];
+    const winnerIds = game.winnerIds || (game.winnerId != null ? [game.winnerId] : []);
+    const winnerNames = winnerIds.map(i => game.players[i] && game.players[i].name).filter(Boolean);
     bannerEl.classList.remove('hidden');
-    bannerEl.textContent = winner ? `🏆 ${winner.name} remporte la partie avec ${totals[game.winnerId]} points !` : 'Partie terminée';
+    if (winnerNames.length > 1) {
+      bannerEl.textContent = `🤝 Égalité entre ${joinNames(winnerNames)} avec ${totals[winnerIds[0]]} points !`;
+    } else if (winnerNames.length === 1) {
+      bannerEl.textContent = `🏆 ${winnerNames[0]} remporte la partie avec ${totals[winnerIds[0]]} points !`;
+    } else {
+      bannerEl.textContent = 'Partie terminée';
+    }
   } else {
     bannerEl.classList.add('hidden');
   }
@@ -580,7 +593,7 @@ function renderBoard() {
   const totalRow = document.createElement('tr');
   let totalCells = '<td>Total</td>';
   totals.forEach((t, i) => {
-    const isLeader = i === leaderIdx && game.rounds.length > 0;
+    const isLeader = leaderIndices.includes(i) && game.rounds.length > 0;
     totalCells += `<td class="${isLeader ? 'leader' : ''}">${t}</td>`;
   });
   totalRow.innerHTML = totalCells;
@@ -693,8 +706,8 @@ function renderBoard() {
       const newTotals = computeTotals(game);
       if (checkGameEnd(gameDef, game, newTotals)) {
         game.finished = true;
-        const rank = getRanking(gameDef, newTotals);
-        game.winnerId = rank[0].i;
+        game.winnerIds = getLeaderIndices(gameDef, newTotals);
+        game.winnerId = game.winnerIds[0];
         archiveGame(gameDef, game, newTotals);
       }
       saveCurrentGame(game);
@@ -721,8 +734,8 @@ function renderBoard() {
       if (!confirm('Terminer la partie avec les scores actuels ?')) return;
       const finalTotals = computeTotals(game);
       game.finished = true;
-      const rank = getRanking(gameDef, finalTotals);
-      game.winnerId = rank[0].i;
+      game.winnerIds = getLeaderIndices(gameDef, finalTotals);
+      game.winnerId = game.winnerIds[0];
       archiveGame(gameDef, game, finalTotals);
       saveCurrentGame(game);
       renderBoard();
@@ -769,6 +782,7 @@ function archiveGame(gameDef, game, totals) {
     players: game.players,
     totals,
     winnerId: game.winnerId,
+    winnerIds: game.winnerIds || (game.winnerId != null ? [game.winnerId] : []),
     roundsPlayed: game.rounds.length,
     finishedAt: Date.now()
   });
@@ -959,7 +973,7 @@ function renderHistory() {
     div.className = 'history-card';
     const date = new Date(h.finishedAt).toLocaleString('fr-FR');
     const pills = h.players.map((p, i) => `
-      <span class="history-pill ${i === h.winnerId ? 'win' : ''}">${escapeHtml(p.name)} · ${h.totals[i]}</span>
+      <span class="history-pill ${(h.winnerIds || [h.winnerId]).includes(i) ? 'win' : ''}">${escapeHtml(p.name)} · ${h.totals[i]}</span>
     `).join('');
     div.innerHTML = `
       <h4>${h.suit || ''} ${escapeHtml(h.label || h.type)}</h4>
@@ -981,6 +995,11 @@ function renderHistory() {
 }
 
 /* ---------- Utilitaires ---------- */
+function joinNames(names) {
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`;
+}
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
