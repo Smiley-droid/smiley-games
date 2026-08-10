@@ -161,6 +161,45 @@ function openRulesModal(gameDef) {
   document.getElementById('rules-close-btn').addEventListener('click', closeModal);
 }
 
+/* ---------- Thème (couleur de table + mode clair) ---------- */
+const THEMES = [
+  { key: 'green', label: 'Feutre vert', dot: 'linear-gradient(135deg,#155a41,#0f3d2e)' },
+  { key: 'burgundy', label: 'Feutre bordeaux', dot: 'linear-gradient(135deg,#7a1c3f,#54132e)' },
+  { key: 'navy', label: 'Feutre bleu nuit', dot: 'linear-gradient(135deg,#164066,#0c2a48)' },
+  { key: 'light', label: 'Clair', dot: 'linear-gradient(135deg,#f6f1e2,#ddd3b8)' }
+];
+
+function applyTheme(key) {
+  if (key === 'green') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', key);
+  try { localStorage.setItem('mp_theme_v1', key === 'green' ? '' : key); } catch (e) {}
+}
+
+function openThemeModal() {
+  const current = document.documentElement.getAttribute('data-theme') || 'green';
+  const overlay = openModal(`
+    <h3 class="modal-title">🎨 Thème de la table</h3>
+    <div class="theme-grid" id="theme-grid"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="theme-close-btn">Fermer</button>
+    </div>`);
+  const grid = overlay.querySelector('#theme-grid');
+  THEMES.forEach(t => {
+    const opt = document.createElement('button');
+    opt.type = 'button';
+    opt.className = 'theme-opt' + (t.key === current ? ' selected' : '');
+    opt.innerHTML = `<span class="theme-dot" style="background:${t.dot}"></span><span>${t.label}</span>`;
+    opt.addEventListener('click', () => {
+      applyTheme(t.key);
+      grid.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+    grid.appendChild(opt);
+  });
+  overlay.querySelector('#theme-close-btn').addEventListener('click', closeModal);
+}
+
+
 
 /* ---------- Import / export de partie (code texte encodé en hexadécimal) ----------
    Remarque : il s'agit d'un encodage réversible (XOR + hexadécimal), pas d'un
@@ -292,9 +331,11 @@ function setView(view, payload) {
   else if (view === 'customnew') renderCustomForm(payload);
 }
 
-document.querySelectorAll('.nav-btn').forEach(btn => {
+document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
   btn.addEventListener('click', () => setView(btn.dataset.view));
 });
+
+document.getElementById('theme-btn').addEventListener('click', openThemeModal);
 
 /* ---------- Vue: Accueil ---------- */
 function renderHome() {
@@ -824,17 +865,24 @@ function renderPlayers() {
     const listEl = document.getElementById('players-manage-list');
     const players = getPlayers();
     if (players.length === 0) {
-      listEl.innerHTML = '<p class="empty-note" style="color:rgba(246,241,226,0.7);">Aucun joueur enregistré pour l\'instant.</p>';
+      listEl.innerHTML = '<p class="empty-note">Aucun joueur enregistré pour l\'instant.</p>';
       return;
     }
     listEl.innerHTML = '';
     players.forEach(p => {
       const li = document.createElement('li');
       const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString('fr-FR') : '';
+      const stats = computePlayerStats(p.id);
+      const statsLine = stats.gamesPlayed === 0
+        ? 'Aucune partie terminée pour l\'instant'
+        : `🏆 ${stats.wins} victoire${stats.wins > 1 ? 's' : ''} sur ${stats.gamesPlayed}` +
+          (stats.avgScore !== null ? ` · Ø ${stats.avgScore} pts` : '') +
+          (stats.streak >= 2 ? ` · 🔥 série de ${stats.streak}` : '');
       li.innerHTML = `
         <div>
           <div class="pname">${escapeHtml(p.name)}</div>
           <div class="pmeta">Ajouté le ${date}</div>
+          <div class="pstats">${statsLine}</div>
         </div>
         <button class="icon-btn" data-remove="${p.id}">Supprimer</button>`;
       listEl.appendChild(li);
@@ -865,7 +913,7 @@ function renderCustoms() {
   const listEl = document.getElementById('customs-list');
   const customs = getCustomGames();
   if (customs.length === 0) {
-    listEl.innerHTML = '<p class="empty-note" style="color:rgba(246,241,226,0.7);">Aucun jeu personnalisé pour l\'instant.</p>';
+    listEl.innerHTML = '<p class="empty-note">Aucun jeu personnalisé pour l\'instant.</p>';
     return;
   }
   listEl.innerHTML = '';
@@ -1012,6 +1060,27 @@ function renderHistory() {
 /* ---------- Utilitaires ---------- */
 function normalize(str) {
   return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/* Statistiques d'un joueur calculées à partir des parties archivées dans l'historique */
+function computePlayerStats(playerId) {
+  const history = getHistory(); // déjà trié du plus récent au plus ancien
+  const played = history.filter(h => h.players.some(p => p.id === playerId));
+  let wins = 0, totalScore = 0, scoredCount = 0, streak = 0, streakBroken = false;
+  played.forEach(h => {
+    const idx = h.players.findIndex(p => p.id === playerId);
+    const winnerIds = h.winnerIds || (h.winnerId != null ? [h.winnerId] : []);
+    const won = winnerIds.includes(idx);
+    if (won) wins++;
+    if (idx >= 0 && Number.isFinite(h.totals[idx])) { totalScore += h.totals[idx]; scoredCount++; }
+    if (!streakBroken) { if (won) streak++; else streakBroken = true; }
+  });
+  return {
+    gamesPlayed: played.length,
+    wins,
+    avgScore: scoredCount ? Math.round((totalScore / scoredCount) * 10) / 10 : null,
+    streak
+  };
 }
 
 function joinNames(names) {
