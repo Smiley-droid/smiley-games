@@ -408,6 +408,7 @@ function renderHome() {
   const tpl = document.getElementById('tpl-home');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   const picker = document.getElementById('game-picker');
   const builtinDescr = {
@@ -516,6 +517,7 @@ function renderSetup() {
   const tpl = document.getElementById('tpl-setup');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   document.getElementById('setup-title').textContent = `${gameDef.suit} ${gameDef.label} — nouvelle partie`;
   document.getElementById('setup-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
@@ -658,6 +660,7 @@ function renderBoard() {
   const tpl = document.getElementById('tpl-board');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('home'));
   document.getElementById('board-title').textContent = `${gameDef.suit} ${gameDef.label}`;
@@ -928,6 +931,7 @@ function renderPlayers() {
   const tpl = document.getElementById('tpl-players');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   const input = document.getElementById('players-new');
   document.getElementById('players-add').addEventListener('click', addPlayer);
@@ -982,6 +986,7 @@ function renderCustoms() {
   const tpl = document.getElementById('tpl-customs');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   document.getElementById('customs-new-btn').addEventListener('click', () => {
     editingCustomId = null;
@@ -1032,6 +1037,7 @@ function renderCustomForm() {
   const tpl = document.getElementById('tpl-customgame-new');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('customs'));
 
   const nameInput = document.getElementById('cg-name');
@@ -1101,6 +1107,7 @@ function renderHistory() {
   const tpl = document.getElementById('tpl-history');
   app.innerHTML = '';
   app.appendChild(tpl.content.cloneNode(true));
+  applyI18n(app);
 
   const listEl = document.getElementById('history-list');
   const history = getHistory();
@@ -1136,6 +1143,164 @@ function renderHistory() {
 }
 
 /* ---------- Utilitaires ---------- */
+/* ---------- Langue (FR/EN, détection auto + choix manuel) ----------
+   Couvre l'interface fixe (menus, titres d'écran, formulaires, libellés
+   communs). Les textes générés dynamiquement en cours de partie (boutons
+   d'action, alertes, règles détaillées) restent en français pour l'instant. */
+const TRANSLATIONS = {
+  fr: {
+    'nav.home': 'Accueil', 'nav.players': 'Joueurs', 'nav.customs': 'Jeux perso', 'nav.history': 'Historique',
+    'theme.button': 'Changer de thème', 'lang.button': 'Changer de langue',
+    'footer.privacy': "Toutes les données restent sur cet appareil (localStorage) — aucune donnée n'est envoyée sur internet.",
+    'footer.creditPre': 'Créé et maintenu par',
+    'footer.creditPost': '— © 2026, tous droits réservés. Reproduction et réutilisation interdites.',
+    'home.title': 'Choisir une partie',
+    'home.searchPlaceholder': '🔍 Rechercher un jeu…',
+    'home.emptySearch': 'Aucun jeu ne correspond à ta recherche.',
+    'home.createCustom': '+ Créer un jeu personnalisé',
+    'home.importGame': '📥 Importer une partie (code texte)',
+    'common.back': '← Retour',
+    'common.rulesTitle': 'Règles du jeu',
+    'common.playerNamePlaceholder': 'Nom du joueur',
+    'common.addBtn': '+ Ajouter',
+    'customgame.title': 'Créer un jeu personnalisé',
+    'customgame.nameLabel': 'Nom du jeu',
+    'customgame.namePlaceholder': 'Ex : Belote, Tarot, Rami maison…',
+    'customgame.directionLabel': 'Sens du score',
+    'customgame.directionHint': 'Qui gagne à la fin de la partie ?',
+    'customgame.directionDesc': 'Le score le plus <strong>haut</strong> gagne',
+    'customgame.directionAsc': 'Le score le plus <strong>bas</strong> gagne',
+    'customgame.endLabel': 'Fin de partie',
+    'customgame.endHint': 'Comment la partie se termine-t-elle ?',
+    'customgame.endRounds': 'Un nombre de manches fixé',
+    'customgame.endTarget': 'Un objectif de points à atteindre',
+    'customgame.roundsCountLabel': 'Nombre de manches',
+    'customgame.targetLabel': 'Objectif de points',
+    'customgame.vocabLabel': 'Vocabulaire',
+    'customgame.roundWordLabel': "Nom d'une manche",
+    'customgame.negativeLabel': 'Scores négatifs',
+    'customgame.negativeHint': 'Peut-on saisir des points négatifs pour une manche ?',
+    'customgame.negativeYes': 'Oui, autoriser le négatif',
+    'customgame.negativeNo': 'Non, scores positifs uniquement',
+    'customgame.save': 'Créer ce jeu',
+    'setup.playersLabel': 'Joueurs',
+    'setup.playersHint': 'Sélectionne des joueurs enregistrés ou ajoutes-en un nouveau.',
+    'setup.startBtn': 'Commencer la partie',
+    'board.abandon': '← Abandonner / Accueil',
+    'customs.title': 'Mes jeux personnalisés',
+    'customs.hint': 'Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.',
+    'customs.newBtn': '+ Nouveau jeu personnalisé',
+    'players.title': 'Joueurs enregistrés',
+    'players.hint': 'Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.',
+    'history.title': 'Historique des parties'
+  },
+  en: {
+    'nav.home': 'Home', 'nav.players': 'Players', 'nav.customs': 'Custom games', 'nav.history': 'History',
+    'theme.button': 'Change theme', 'lang.button': 'Change language',
+    'footer.privacy': 'All data stays on this device (localStorage) — nothing is sent over the internet.',
+    'footer.creditPre': 'Made and maintained by',
+    'footer.creditPost': '— © 2026, all rights reserved. Reproduction and reuse prohibited.',
+    'home.title': 'Choose a game',
+    'home.searchPlaceholder': '🔍 Search for a game…',
+    'home.emptySearch': 'No game matches your search.',
+    'home.createCustom': '+ Create a custom game',
+    'home.importGame': '📥 Import a game (text code)',
+    'common.back': '← Back',
+    'common.rulesTitle': 'Game rules',
+    'common.playerNamePlaceholder': 'Player name',
+    'common.addBtn': '+ Add',
+    'customgame.title': 'Create a custom game',
+    'customgame.nameLabel': 'Game name',
+    'customgame.namePlaceholder': 'E.g. Belote, Tarot, house Rummy…',
+    'customgame.directionLabel': 'Scoring direction',
+    'customgame.directionHint': 'Who wins at the end of the game?',
+    'customgame.directionDesc': 'The <strong>highest</strong> score wins',
+    'customgame.directionAsc': 'The <strong>lowest</strong> score wins',
+    'customgame.endLabel': 'End of game',
+    'customgame.endHint': 'How does the game end?',
+    'customgame.endRounds': 'A fixed number of rounds',
+    'customgame.endTarget': 'A points target to reach',
+    'customgame.roundsCountLabel': 'Number of rounds',
+    'customgame.targetLabel': 'Points target',
+    'customgame.vocabLabel': 'Vocabulary',
+    'customgame.roundWordLabel': 'Name of a round',
+    'customgame.negativeLabel': 'Negative scores',
+    'customgame.negativeHint': 'Can a round score be negative?',
+    'customgame.negativeYes': 'Yes, allow negative scores',
+    'customgame.negativeNo': 'No, positive scores only',
+    'customgame.save': 'Create this game',
+    'setup.playersLabel': 'Players',
+    'setup.playersHint': 'Pick registered players or add a new one.',
+    'setup.startBtn': 'Start the game',
+    'board.abandon': '← Give up / Home',
+    'customs.title': 'My custom games',
+    'customs.hint': 'Build your own game: name, scoring direction, end condition (fixed rounds or points target) — fully configurable.',
+    'customs.newBtn': '+ New custom game',
+    'players.title': 'Registered players',
+    'players.hint': 'These players are saved on this device and reusable across every game.',
+    'history.title': 'Game history'
+  }
+};
+
+const SUPPORTED_LANGS = ['fr', 'en'];
+
+function detectLang() {
+  try {
+    const saved = localStorage.getItem('mp_lang_v1');
+    if (saved && SUPPORTED_LANGS.includes(saved)) return saved;
+  } catch (e) {}
+  const nav = (navigator.language || navigator.userLanguage || 'fr').slice(0, 2).toLowerCase();
+  return SUPPORTED_LANGS.includes(nav) ? nav : 'fr';
+}
+
+let currentLang = detectLang();
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.fr[key] || key;
+}
+
+function setLang(lang) {
+  currentLang = SUPPORTED_LANGS.includes(lang) ? lang : 'fr';
+  try { localStorage.setItem('mp_lang_v1', currentLang); } catch (e) {}
+  document.documentElement.lang = currentLang;
+  applyI18n(document);
+}
+
+function applyI18n(root) {
+  root.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  root.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const txt = t(el.dataset.i18nTitle);
+    el.title = txt;
+    el.setAttribute('aria-label', txt);
+  });
+}
+
+function openLangModal() {
+  const overlay = openModal(`
+    <h3 class="modal-title">🌐 ${t('lang.button')}</h3>
+    <div class="theme-grid" id="lang-grid">
+      <button type="button" class="theme-opt" data-lang="fr">🇫🇷 Français</button>
+      <button type="button" class="theme-opt" data-lang="en">🇬🇧 English</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="lang-close-btn">${currentLang === 'en' ? 'Close' : 'Fermer'}</button>
+    </div>`);
+  overlay.querySelectorAll('[data-lang]').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.lang === currentLang);
+    btn.addEventListener('click', () => {
+      setLang(btn.dataset.lang);
+      closeModal();
+      setView('home');
+    });
+  });
+  overlay.querySelector('#lang-close-btn').addEventListener('click', closeModal);
+}
+
+document.getElementById('lang-btn').addEventListener('click', openLangModal);
+document.documentElement.lang = currentLang;
+applyI18n(document);
+
 function normalize(str) {
   return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }

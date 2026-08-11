@@ -50,31 +50,32 @@
       </div>
     </div>
     <nav class="topnav">
-      <button class="nav-btn" data-view="home">Accueil</button>
-      <button class="nav-btn" data-view="players">Joueurs</button>
-      <button class="nav-btn" data-view="customs">Jeux perso</button>
-      <button class="nav-btn" data-view="history">Historique</button>
-      <button class="nav-btn theme-btn" id="theme-btn" title="Changer de thème" aria-label="Changer de thème">🎨</button>
+      <button class="nav-btn" data-view="home" data-i18n="nav.home">Accueil</button>
+      <button class="nav-btn" data-view="players" data-i18n="nav.players">Joueurs</button>
+      <button class="nav-btn" data-view="customs" data-i18n="nav.customs">Jeux perso</button>
+      <button class="nav-btn" data-view="history" data-i18n="nav.history">Historique</button>
+      <button class="nav-btn theme-btn" id="theme-btn" data-i18n-title="theme.button">🎨</button>
+      <button class="nav-btn lang-btn" id="lang-btn" data-i18n-title="lang.button">🌐</button>
     </nav>
   </header>
 
   <main id="app"></main>
 
   <footer class="foot">
-    <p>Toutes les données restent sur cet appareil (localStorage) — aucune donnée n'est envoyée sur internet.</p>
-    <p class="foot-credit">Créé et maintenu par <a href="https://github.com/Smiley-droid" target="_blank" rel="noopener">@Smiley-droid</a> — © 2026, tous droits réservés. Reproduction et réutilisation interdites.</p>
+    <p data-i18n="footer.privacy">Toutes les données restent sur cet appareil (localStorage) — aucune donnée n'est envoyée sur internet.</p>
+    <p class="foot-credit"><span data-i18n="footer.creditPre">Créé et maintenu par</span> <a href="https://github.com/Smiley-droid" target="_blank" rel="noopener">@Smiley-droid</a> <span data-i18n="footer.creditPost">— © 2026, tous droits réservés. Reproduction et réutilisation interdites.</span></p>
   </footer>
 </div>
 
 <template id="tpl-home">
   <section class="view view-home">
-    <h2 class="view-title">Choisir une partie</h2>
-    <input type="search" id="game-search" class="game-search" placeholder="🔍 Rechercher un jeu…" autocomplete="off">
+    <h2 class="view-title" data-i18n="home.title">Choisir une partie</h2>
+    <input type="search" id="game-search" class="game-search" data-i18n-placeholder="home.searchPlaceholder" placeholder="🔍 Rechercher un jeu…" autocomplete="off">
     <div class="game-picker" id="game-picker"></div>
-    <p class="empty-note hidden" id="game-search-empty" style="color:rgba(246,241,226,0.7);">Aucun jeu ne correspond à ta recherche.</p>
+    <p class="empty-note hidden" id="game-search-empty" data-i18n="home.emptySearch">Aucun jeu ne correspond à ta recherche.</p>
 
-    <button class="create-custom-link" id="goto-create-custom">+ Créer un jeu personnalisé</button>
-    <button class="create-custom-link" id="goto-import">📥 Importer une partie (code texte)</button>
+    <button class="create-custom-link" id="goto-create-custom" data-i18n="home.createCustom">+ Créer un jeu personnalisé</button>
+    <button class="create-custom-link" id="goto-import" data-i18n="home.importGame">📥 Importer une partie (code texte)</button>
 
     <div id="resume-zone"></div>
   </section>
@@ -82,92 +83,92 @@
 
 <template id="tpl-customgame-new">
   <section class="view view-customgame">
-    <button class="back-link" data-back="home">← Retour</button>
-    <h2 class="view-title">Créer un jeu personnalisé</h2>
+    <button class="back-link" data-back="home" data-i18n="common.back">← Retour</button>
+    <h2 class="view-title" data-i18n="customgame.title">Créer un jeu personnalisé</h2>
 
     <div class="setup-block">
-      <h3>Nom du jeu</h3>
-      <input type="text" id="cg-name" placeholder="Ex : Belote, Tarot, Rami maison…" maxlength="30">
+      <h3 data-i18n="customgame.nameLabel">Nom du jeu</h3>
+      <input type="text" id="cg-name" data-i18n-placeholder="customgame.namePlaceholder" placeholder="Ex : Belote, Tarot, Rami maison…" maxlength="30">
     </div>
 
     <div class="setup-block">
-      <h3>Sens du score</h3>
-      <p class="hint">Qui gagne à la fin de la partie ?</p>
+      <h3 data-i18n="customgame.directionLabel">Sens du score</h3>
+      <p class="hint" data-i18n="customgame.directionHint">Qui gagne à la fin de la partie ?</p>
       <div class="radio-group">
-        <label class="radio-opt"><input type="radio" name="cg-direction" value="desc" checked> Le score le plus <strong>haut</strong> gagne</label>
-        <label class="radio-opt"><input type="radio" name="cg-direction" value="asc"> Le score le plus <strong>bas</strong> gagne</label>
+        <label class="radio-opt"><input type="radio" name="cg-direction" value="desc" checked> <span data-i18n="customgame.directionDesc">Le score le plus <strong>haut</strong> gagne</span></label>
+        <label class="radio-opt"><input type="radio" name="cg-direction" value="asc"> <span data-i18n="customgame.directionAsc">Le score le plus <strong>bas</strong> gagne</span></label>
       </div>
     </div>
 
     <div class="setup-block">
-      <h3>Fin de partie</h3>
-      <p class="hint">Comment la partie se termine-t-elle ?</p>
+      <h3 data-i18n="customgame.endLabel">Fin de partie</h3>
+      <p class="hint" data-i18n="customgame.endHint">Comment la partie se termine-t-elle ?</p>
       <div class="radio-group">
-        <label class="radio-opt"><input type="radio" name="cg-endmode" value="rounds" checked> Un nombre de manches fixé</label>
-        <label class="radio-opt"><input type="radio" name="cg-endmode" value="target"> Un objectif de points à atteindre</label>
+        <label class="radio-opt"><input type="radio" name="cg-endmode" value="rounds" checked> <span data-i18n="customgame.endRounds">Un nombre de manches fixé</span></label>
+        <label class="radio-opt"><input type="radio" name="cg-endmode" value="target"> <span data-i18n="customgame.endTarget">Un objectif de points à atteindre</span></label>
       </div>
       <div class="option-row" id="cg-rounds-row">
-        <label for="cg-maxrounds">Nombre de manches</label>
+        <label for="cg-maxrounds" data-i18n="customgame.roundsCountLabel">Nombre de manches</label>
         <input type="number" id="cg-maxrounds" min="1" max="50" value="10">
       </div>
       <div class="option-row hidden" id="cg-target-row">
-        <label for="cg-target">Objectif de points</label>
+        <label for="cg-target" data-i18n="customgame.targetLabel">Objectif de points</label>
         <input type="number" id="cg-target" min="1" step="5" value="100">
       </div>
     </div>
 
     <div class="setup-block">
-      <h3>Vocabulaire</h3>
+      <h3 data-i18n="customgame.vocabLabel">Vocabulaire</h3>
       <div class="option-row">
-        <label for="cg-roundword">Nom d'une manche</label>
+        <label for="cg-roundword" data-i18n="customgame.roundWordLabel">Nom d'une manche</label>
         <input type="text" id="cg-roundword" maxlength="16" value="Manche" style="width:130px;">
       </div>
     </div>
 
     <div class="setup-block">
-      <h3>Scores négatifs</h3>
-      <p class="hint">Peut-on saisir des points négatifs pour une manche ?</p>
+      <h3 data-i18n="customgame.negativeLabel">Scores négatifs</h3>
+      <p class="hint" data-i18n="customgame.negativeHint">Peut-on saisir des points négatifs pour une manche ?</p>
       <div class="radio-group">
-        <label class="radio-opt"><input type="radio" name="cg-negative" value="yes"> Oui, autoriser le négatif</label>
-        <label class="radio-opt"><input type="radio" name="cg-negative" value="no" checked> Non, scores positifs uniquement</label>
+        <label class="radio-opt"><input type="radio" name="cg-negative" value="yes"> <span data-i18n="customgame.negativeYes">Oui, autoriser le négatif</span></label>
+        <label class="radio-opt"><input type="radio" name="cg-negative" value="no" checked> <span data-i18n="customgame.negativeNo">Non, scores positifs uniquement</span></label>
       </div>
     </div>
 
-    <button id="cg-save" class="btn-primary btn-large">Créer ce jeu</button>
+    <button id="cg-save" class="btn-primary btn-large" data-i18n="customgame.save">Créer ce jeu</button>
   </section>
 </template>
 
 <template id="tpl-setup">
   <section class="view view-setup">
-    <button class="back-link" data-back="home">← Retour</button>
+    <button class="back-link" data-back="home" data-i18n="common.back">← Retour</button>
     <div class="board-title-row">
       <h2 class="view-title" id="setup-title">Nouvelle partie</h2>
-      <button class="rules-btn" id="setup-rules-btn" title="Règles du jeu" aria-label="Voir les règles">?</button>
+      <button class="rules-btn" id="setup-rules-btn" data-i18n-title="common.rulesTitle">?</button>
     </div>
 
     <div class="setup-block">
-      <h3>Joueurs</h3>
-      <p class="hint">Sélectionne des joueurs enregistrés ou ajoutes-en un nouveau.</p>
+      <h3 data-i18n="setup.playersLabel">Joueurs</h3>
+      <p class="hint" data-i18n="setup.playersHint">Sélectionne des joueurs enregistrés ou ajoutes-en un nouveau.</p>
       <div id="setup-player-list" class="chip-list"></div>
       <div class="inline-add">
-        <input type="text" id="setup-new-player" placeholder="Nom du joueur" maxlength="24">
-        <button id="setup-add-player" class="btn-ghost">+ Ajouter</button>
+        <input type="text" id="setup-new-player" data-i18n-placeholder="common.playerNamePlaceholder" placeholder="Nom du joueur" maxlength="24">
+        <button id="setup-add-player" class="btn-ghost" data-i18n="common.addBtn">+ Ajouter</button>
       </div>
     </div>
 
     <div class="setup-block" id="setup-options"></div>
 
-    <button id="setup-start" class="btn-primary btn-large">Commencer la partie</button>
+    <button id="setup-start" class="btn-primary btn-large" data-i18n="setup.startBtn">Commencer la partie</button>
   </section>
 </template>
 
 <template id="tpl-board">
   <section class="view view-board">
-    <button class="back-link" data-back="home">← Abandonner / Accueil</button>
+    <button class="back-link" data-back="home" data-i18n="board.abandon">← Abandonner / Accueil</button>
     <div class="board-head">
       <div class="board-title-row">
         <h2 class="view-title" id="board-title">Partie</h2>
-        <button class="rules-btn" id="board-rules-btn" title="Règles du jeu" aria-label="Voir les règles">?</button>
+        <button class="rules-btn" id="board-rules-btn" data-i18n-title="common.rulesTitle">?</button>
       </div>
       <div class="board-meta" id="board-meta"></div>
     </div>
@@ -186,23 +187,23 @@
 
 <template id="tpl-customs">
   <section class="view view-customs">
-    <h2 class="view-title">Mes jeux personnalisés</h2>
+    <h2 class="view-title" data-i18n="customs.title">Mes jeux personnalisés</h2>
     <div class="setup-block">
-      <p class="hint" style="margin-bottom:0;">Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.</p>
+      <p class="hint" style="margin-bottom:0;" data-i18n="customs.hint">Crée un jeu sur mesure : nom, sens du score, fin de partie (nombre de manches ou objectif de points) — tout est réglable.</p>
     </div>
-    <button class="btn-primary" id="customs-new-btn" style="margin-bottom:18px;">+ Nouveau jeu personnalisé</button>
+    <button class="btn-primary" id="customs-new-btn" style="margin-bottom:18px;" data-i18n="customs.newBtn">+ Nouveau jeu personnalisé</button>
     <ul class="player-manage-list" id="customs-list"></ul>
   </section>
 </template>
 
 <template id="tpl-players">
   <section class="view view-players">
-    <h2 class="view-title">Joueurs enregistrés</h2>
+    <h2 class="view-title" data-i18n="players.title">Joueurs enregistrés</h2>
     <div class="setup-block">
-      <p class="hint">Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.</p>
+      <p class="hint" data-i18n="players.hint">Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.</p>
       <div class="inline-add">
-        <input type="text" id="players-new" placeholder="Nom du joueur" maxlength="24">
-        <button id="players-add" class="btn-ghost">+ Ajouter</button>
+        <input type="text" id="players-new" data-i18n-placeholder="common.playerNamePlaceholder" placeholder="Nom du joueur" maxlength="24">
+        <button id="players-add" class="btn-ghost" data-i18n="common.addBtn">+ Ajouter</button>
       </div>
     </div>
     <ul class="player-manage-list" id="players-manage-list"></ul>
@@ -211,7 +212,7 @@
 
 <template id="tpl-history">
   <section class="view view-history">
-    <h2 class="view-title">Historique des parties</h2>
+    <h2 class="view-title" data-i18n="history.title">Historique des parties</h2>
     <div id="history-list"></div>
   </section>
 </template>
