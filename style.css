@@ -589,6 +589,71 @@ table.scoreboard{
 }
 .import-error.hidden{display:none;}
 
+/* Confettis */
+.confetti-layer{
+  position:fixed; inset:0; top:-20px;
+  pointer-events:none;
+  z-index:200;
+  overflow:hidden;
+}
+.confetti-piece{
+  position:absolute;
+  top:-20px;
+  width:9px; height:14px;
+  opacity:0.9;
+  animation-name:confetti-fall;
+  animation-timing-function:ease-in;
+  animation-fill-mode:forwards;
+}
+@keyframes confetti-fall{
+  0%{ transform:translate(0,0) rotate(0deg); opacity:1; }
+  100%{ transform:translate(var(--drift), 108vh) rotate(var(--rot)); opacity:0.3; }
+}
+@media (prefers-reduced-motion: reduce){
+  .confetti-piece{animation:none;display:none;}
+}
+
+/* Minuteur */
+.timer-toggle{
+  width:100%;
+  background:rgba(var(--felt-text-rgb),0.08);
+  color:rgba(var(--felt-text-rgb),1);
+  border:1.5px dashed rgba(var(--felt-text-rgb),0.3);
+  padding:9px 14px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:0.85rem;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.timer-toggle:hover{background:rgba(var(--felt-text-rgb),0.16);}
+.timer-panel{
+  background:var(--paper);
+  border-radius:var(--radius);
+  padding:16px 18px 18px;
+  margin-bottom:10px;
+  box-shadow:var(--shadow-card);
+  text-align:center;
+}
+.timer-display{
+  font-family:'JetBrains Mono',monospace;
+  font-size:2.6rem;
+  font-weight:700;
+  color:var(--felt-1);
+  letter-spacing:0.02em;
+  margin:2px 0 12px;
+  transition:color .2s ease;
+}
+.timer-display.timer-done{color:var(--crimson);animation:timer-pulse 1s ease-in-out infinite;}
+@keyframes timer-pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.timer-duration-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;}
+.timer-duration-row input{
+  width:64px;padding:7px 8px;text-align:center;border-radius:8px;border:1.5px solid var(--line);
+  font-family:'JetBrains Mono',monospace;font-size:0.9rem;
+}
+.timer-btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.timer-btn-row button{flex:1;min-width:90px;}
+
 .theme-btn{font-size:1rem;padding:8px 12px;}
 .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 16px;}
 .theme-opt{

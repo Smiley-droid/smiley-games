@@ -105,6 +105,60 @@ const BUILTIN_GAMES = {
     defaultRounds: 13,
     roundWord: 'Catégorie',
     allowNegative: false
+  },
+  president: {
+    label: 'Le Président',
+    suit: '🥇',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 10,
+    roundWord: 'Manche',
+    allowNegative: true
+  },
+  millebornes: {
+    label: 'Mille Bornes',
+    suit: '🚗',
+    direction: 'desc',
+    endMode: 'target',
+    defaultTarget: 1000,
+    roundWord: 'Manche',
+    allowNegative: false
+  },
+  poker: {
+    label: 'Poker',
+    suit: '🎰',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 20,
+    roundWord: 'Main',
+    allowNegative: true
+  },
+  kaid: {
+    label: 'Bataille Corse (Kaïd)',
+    suit: '🏔️',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 8,
+    roundWord: 'Manche',
+    allowNegative: false
+  },
+  killer: {
+    label: 'Killer',
+    suit: '🗡️',
+    direction: 'desc',
+    endMode: 'rounds',
+    defaultRounds: 10,
+    roundWord: 'Manche',
+    allowNegative: false
+  },
+  cinqcents: {
+    label: '500 (Cinq Cents)',
+    suit: '5️⃣',
+    direction: 'desc',
+    endMode: 'target',
+    defaultTarget: 500,
+    roundWord: 'Manche',
+    allowNegative: true
   }
 };
 
@@ -200,7 +254,19 @@ const BUILTIN_RULES = {
   uno: `<p>Le premier joueur à vider sa main remporte la manche et marque 0. Les autres comptent les points des cartes qui leur restent en main (cartes chiffrées = leur valeur, cartes spéciales = 20, Joker/+4 = 50).</p>
     <p>Ces points s'accumulent manche après manche. Premier joueur à <strong>atteindre 500 points perd</strong> — donc le total le plus <strong>bas</strong> gagne à l'arrêt de la partie.</p>`,
   yams: `<p>Feuille de 13 catégories (brelan, full, suite, yams, etc.) à remplir une par une au fil des lancers de 5 dés, chacune ne pouvant être utilisée qu'une seule fois.</p>
-    <p>Dans l'appli, chaque "manche" correspond à une catégorie remplie : entrez le score obtenu (0 si la catégorie est ratée/barrée). Après les 13 catégories, le total le plus <strong>haut</strong> gagne.</p>`
+    <p>Dans l'appli, chaque "manche" correspond à une catégorie remplie : entrez le score obtenu (0 si la catégorie est ratée/barrée). Après les 13 catégories, le total le plus <strong>haut</strong> gagne.</p>`,
+  president: `<p>Chaque manche, on se débarrasse de ses cartes en jouant des combinaisons de force croissante (paires, brelans...). Le premier à finir devient "Président", le dernier devient "Trou du cul" pour la manche suivante (échange de cartes entre eux).</p>
+    <p>Comptez les points comme vous préférez (ex. Président +3, dernier -3, ou juste l'ordre de sortie). Le total le plus <strong>haut</strong> gagne après le nombre de manches choisi.</p>`,
+  millebornes: `<p>Chaque équipe/joueur pose des cartes Étape (bornes de 25 à 200 km) pour avancer, en gérant attaques (Crevaison, Panne...) et parades. Objectif : atteindre <strong>1000 km</strong> (ou 700 en partie courte) avant les autres.</p>
+    <p>Des primes s'ajoutent en fin de manche (Coup Fourré, Allonge, Sans Bottes...). Le score le plus <strong>haut</strong> gagne.</p>`,
+  poker: `<p>Suivi de jetons pour une partie de poker maison (Texas Hold'em ou autre variante). Entrez le gain ou la perte nette de chaque joueur à chaque main (les pertes en négatif).</p>
+    <p>Le total le plus <strong>haut</strong> à la fin de la session remporte la partie — la somme de tous les joueurs doit toujours être égale à zéro si tout est bien compté !</p>`,
+  kaid: `<p>Jeu de plis traditionnel corse, jouable à 3 ou 4. Chaque manche, on compte les points des plis remportés (valeurs classiques : As, 10, Roi, Dame, Valet...).</p>
+    <p>Après plusieurs manches, le total le plus <strong>haut</strong> gagne.</p>`,
+  killer: `<p>Chaque joueur reçoit une carte cible (un autre joueur à "éliminer") sans que personne ne le sache. On joue des tours successifs ; être éliminé signifie perdre la partie pour ce joueur, l'assassin hérite alors de sa cible.</p>
+    <p>Notez à chaque manche le nombre de tours survécus ou de cibles éliminées. Le total le plus <strong>haut</strong> (dernier survivant) gagne.</p>`,
+  cinqcents: `<p>Variante du Rami où chaque combinaison posée rapporte des points définis (ex. As = 15-20, figures = 10, etc.) tandis que les cartes qui restent en main à la fin d'une manche sont des points négatifs.</p>
+    <p>Premier joueur à atteindre <strong>500 points</strong> remporte la partie.</p>`
 };
 
 function getRulesHtml(gameDef) {
@@ -384,6 +450,121 @@ let setupSelectedPlayers = [];
 let editingCustomId = null;
 let boardAddPlayerOpen = false;
 
+/* ---------- Minuteur (utile pour les jeux à tour chronométré) ---------- */
+let timerPanelOpen = false;
+let timerRunning = false;
+let timerDurationSec = (() => {
+  try { return parseInt(localStorage.getItem('mp_timer_duration_v1'), 10) || 60; } catch (e) { return 60; }
+})();
+let timerRemainingSec = timerDurationSec;
+let timerIntervalId = null;
+
+function formatTimer(sec) {
+  const s = Math.max(0, sec);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, '0')}`;
+}
+
+function playTimerBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 220].forEach(delay => {
+      setTimeout(() => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      }, delay);
+    });
+  } catch (e) {}
+  if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} }
+}
+
+function timerTick() {
+  timerRemainingSec--;
+  const disp = document.getElementById('timer-display-el');
+  if (disp) disp.textContent = formatTimer(timerRemainingSec);
+  if (timerRemainingSec <= 0) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+    timerRunning = false;
+    if (disp) disp.classList.add('timer-done');
+    playTimerBeep();
+    renderTimerPanel();
+  }
+}
+
+function renderTimerPanel() {
+  const wrap = document.getElementById('board-timer');
+  if (!wrap) return;
+  if (!timerPanelOpen) {
+    wrap.innerHTML = `<button class="timer-toggle" id="timer-toggle-btn">⏱️ Minuteur</button>`;
+    document.getElementById('timer-toggle-btn').addEventListener('click', () => {
+      timerPanelOpen = true;
+      renderTimerPanel();
+    });
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="timer-panel">
+      <div class="timer-display${timerRemainingSec <= 0 ? ' timer-done' : ''}" id="timer-display-el">${formatTimer(timerRemainingSec)}</div>
+      <div class="timer-duration-row">
+        <label for="timer-duration-input" style="font-size:0.85rem;color:#5a543f;">Durée (min)</label>
+        <input type="number" id="timer-duration-input" min="1" max="180" value="${Math.round(timerDurationSec / 60 * 10) / 10}" ${timerRunning ? 'disabled' : ''}>
+      </div>
+      <div class="timer-btn-row">
+        <button class="btn-primary" id="timer-startpause-btn">${timerRunning ? '⏸ Pause' : '▶️ Démarrer'}</button>
+        <button class="btn-ghost" id="timer-reset-btn" style="border-color:var(--felt-1);color:var(--felt-1);">↺ Réinitialiser</button>
+        <button class="btn-ghost" id="timer-close-btn" style="border-color:var(--felt-1);color:var(--felt-1);">Fermer</button>
+      </div>
+    </div>`;
+
+  document.getElementById('timer-duration-input').addEventListener('change', (e) => {
+    const mins = parseFloat(e.target.value);
+    if (mins > 0) {
+      timerDurationSec = Math.round(mins * 60);
+      try { localStorage.setItem('mp_timer_duration_v1', timerDurationSec); } catch (err) {}
+      if (!timerRunning) {
+        timerRemainingSec = timerDurationSec;
+        renderTimerPanel();
+      }
+    }
+  });
+
+  document.getElementById('timer-startpause-btn').addEventListener('click', () => {
+    if (timerRunning) {
+      clearInterval(timerIntervalId);
+      timerIntervalId = null;
+      timerRunning = false;
+    } else {
+      if (timerRemainingSec <= 0) timerRemainingSec = timerDurationSec;
+      timerRunning = true;
+      timerIntervalId = setInterval(timerTick, 1000);
+    }
+    renderTimerPanel();
+  });
+
+  document.getElementById('timer-reset-btn').addEventListener('click', () => {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+    timerRunning = false;
+    timerRemainingSec = timerDurationSec;
+    renderTimerPanel();
+  });
+
+  document.getElementById('timer-close-btn').addEventListener('click', () => {
+    timerPanelOpen = false;
+    renderTimerPanel();
+  });
+}
+
+
 function setView(view, payload) {
   document.querySelectorAll('.nav-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.view === view);
@@ -421,7 +602,13 @@ function renderHome() {
     rami: 'Suites et brelans pour vider sa main. Le score le plus bas gagne.',
     skyjo: 'Grille de cartes cachées, de -2 à 12. Objectif 100, le plus bas gagne.',
     uno: 'Premier à vider sa main marque 0. Objectif 500, le plus bas gagne.',
-    yams: '13 catégories de dés à remplir. Le score le plus haut gagne.'
+    yams: '13 catégories de dés à remplir. Le score le plus haut gagne.',
+    president: 'Hiérarchie qui change à chaque manche. Le score le plus haut gagne.',
+    millebornes: 'Course par étapes jusqu\'à 1000 km. Le score le plus haut gagne.',
+    poker: 'Suivi des jetons gagnés/perdus main par main. Le total le plus haut gagne.',
+    kaid: 'Jeu de plis traditionnel corse. Le score le plus haut gagne.',
+    killer: 'Élimination progressive de cibles secrètes. Le dernier survivant gagne.',
+    cinqcents: 'Variante du Rami, objectif 500 points. Le score le plus haut gagne.'
   };
 
   function makeCard(type, def, descr) {
@@ -451,6 +638,12 @@ function renderHome() {
   picker.appendChild(makeCard('skyjo', BUILTIN_GAMES.skyjo, builtinDescr.skyjo));
   picker.appendChild(makeCard('uno', BUILTIN_GAMES.uno, builtinDescr.uno));
   picker.appendChild(makeCard('yams', BUILTIN_GAMES.yams, builtinDescr.yams));
+  picker.appendChild(makeCard('president', BUILTIN_GAMES.president, builtinDescr.president));
+  picker.appendChild(makeCard('millebornes', BUILTIN_GAMES.millebornes, builtinDescr.millebornes));
+  picker.appendChild(makeCard('poker', BUILTIN_GAMES.poker, builtinDescr.poker));
+  picker.appendChild(makeCard('kaid', BUILTIN_GAMES.kaid, builtinDescr.kaid));
+  picker.appendChild(makeCard('killer', BUILTIN_GAMES.killer, builtinDescr.killer));
+  picker.appendChild(makeCard('cinqcents', BUILTIN_GAMES.cinqcents, builtinDescr.cinqcents));
 
   const undercoverCard = document.createElement('button');
   undercoverCard.className = 'game-card';
@@ -665,6 +858,7 @@ function renderBoard() {
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('home'));
   document.getElementById('board-title').textContent = `${gameDef.suit} ${gameDef.label}`;
   document.getElementById('board-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
+  renderTimerPanel();
 
   const totals = computeTotals(game);
   const leaderIndices = getLeaderIndices(gameDef, totals);
@@ -846,6 +1040,10 @@ function renderBoard() {
         game.winnerIds = getLeaderIndices(gameDef, newTotals);
         game.winnerId = game.winnerIds[0];
         archiveGame(gameDef, game, newTotals);
+        saveCurrentGame(game);
+        renderBoard();
+        launchConfetti();
+        return;
       }
       saveCurrentGame(game);
       renderBoard();
@@ -876,6 +1074,7 @@ function renderBoard() {
       archiveGame(gameDef, game, finalTotals);
       saveCurrentGame(game);
       renderBoard();
+      launchConfetti();
     });
     actionsEl.appendChild(finishBtn);
   } else {
@@ -907,6 +1106,30 @@ function renderBoard() {
 
   const firstInput = table.querySelector('[data-score-input]');
   if (firstInput) firstInput.focus();
+}
+
+/* Petite pluie de confettis (DOM/CSS pur, sans dépendance) */
+function launchConfetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#c8a24b', '#e8c877', '#155a41', '#f6f1e2', '#a33d3d'];
+  const container = document.createElement('div');
+  container.className = 'confetti-layer';
+  const count = 60;
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('span');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.setProperty('--drift', (Math.random() * 140 - 70) + 'px');
+    piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    if (Math.random() > 0.5) piece.style.borderRadius = '50%';
+    container.appendChild(piece);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 4200);
+  if (navigator.vibrate) { try { navigator.vibrate([15, 40, 15]); } catch (e) {} }
 }
 
 function archiveGame(gameDef, game, totals) {
