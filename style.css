@@ -159,6 +159,7 @@ body{
   text-align:left;
   background:var(--paper);
   border:none;
+  color:var(--ink);
   border-radius:var(--radius);
   padding:22px 20px 20px;
   cursor:pointer;
@@ -306,6 +307,7 @@ body{
   border-radius:999px;
   border:1.5px solid var(--line);
   background:#fff;
+  color:var(--ink);
   font-size:0.85rem;
   cursor:pointer;
   user-select:none;
