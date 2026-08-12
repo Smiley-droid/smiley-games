@@ -656,6 +656,17 @@ function renderHome() {
   undercoverCard.addEventListener('click', () => { window.location.href = 'undercover/index.html'; });
   picker.appendChild(undercoverCard);
 
+  const loupGarouCard = document.createElement('button');
+  loupGarouCard.className = 'game-card';
+  loupGarouCard.dataset.search = normalize('Loup-Garou village nuit roles caches');
+  loupGarouCard.innerHTML = `
+    <span class="game-card-suit">🐺</span>
+    <h3>Loup-Garou</h3>
+    <p>Rôles cachés, phases nuit/jour, meneur de jeu automatique. Pas de score à saisir : ce jeu se joue à part.</p>
+    <span class="game-card-cta">Ouvrir Loup-Garou →</span>`;
+  loupGarouCard.addEventListener('click', () => { window.location.href = 'loup-garou/index.html'; });
+  picker.appendChild(loupGarouCard);
+
   getCustomGames().forEach(cg => {
     const def = getGameDef('custom:' + cg.id);
     const descr = def.endMode === 'target'

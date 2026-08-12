@@ -1,0 +1,104 @@
+<!--
+  © 2026 Smiley-droid — Tous droits réservés. Voir /LICENSE.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loup-Garou — Smiley Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="night-sky">
+  <div class="stars"></div>
+  <div class="moon">🌕</div>
+
+  <header class="lg-topbar">
+    <a href="../index.html" class="lg-back">← Smiley Games</a>
+    <button class="lg-rules-btn" id="rules-btn">? Règles</button>
+  </header>
+
+  <main id="app"></main>
+</div>
+
+<template id="tpl-home">
+  <section class="lg-view lg-home">
+    <div class="lg-brand">
+      <span class="lg-wolf">🐺</span>
+      <h1>Loup-Garou</h1>
+      <p>Un village. Des loups cachés parmi vous. Qui survivra à la nuit ?</p>
+    </div>
+    <button class="lg-btn-primary" id="new-game-btn">Nouvelle partie</button>
+    <div id="lg-resume-zone"></div>
+  </section>
+</template>
+
+<template id="tpl-setup">
+  <section class="lg-view lg-setup">
+    <button class="lg-link-back" data-back="home">← Retour</button>
+    <h2>Joueurs</h2>
+    <p class="lg-hint">Ajoute tous les joueurs présents autour de la table (5 minimum, 8-12 idéal).</p>
+    <div class="lg-inline-add">
+      <input type="text" id="setup-new-player" placeholder="Nom du joueur" maxlength="24">
+      <button id="setup-add-player" class="lg-btn-ghost">+ Ajouter</button>
+    </div>
+    <ul class="lg-player-list" id="setup-player-list"></ul>
+
+    <h2>Rôles spéciaux</h2>
+    <p class="lg-hint">Le nombre de loups s'ajuste automatiquement. Coche les rôles spéciaux que tu veux inclure.</p>
+    <div class="lg-role-picker" id="role-picker"></div>
+
+    <div class="lg-summary" id="setup-summary"></div>
+
+    <button class="lg-btn-primary" id="distribute-btn">Distribuer les rôles</button>
+  </section>
+</template>
+
+<template id="tpl-reveal">
+  <section class="lg-view lg-reveal">
+    <p class="lg-progress" id="reveal-progress">Joueur 1 / 8</p>
+    <div class="lg-role-card" id="role-card">
+      <div class="lg-role-card-face lg-role-card-hidden" id="role-card-hidden">
+        <p class="lg-pass-name" id="pass-name">Passe le téléphone à</p>
+        <h2 id="reveal-player-name">—</h2>
+        <p class="lg-tap-hint">Touche pour révéler ton rôle</p>
+      </div>
+      <div class="lg-role-card-face lg-role-card-shown hidden" id="role-card-shown">
+        <span class="lg-role-icon" id="reveal-role-icon">🐺</span>
+        <h2 id="reveal-role-name">Loup-Garou</h2>
+        <p id="reveal-role-desc">Description du rôle</p>
+      </div>
+    </div>
+    <button class="lg-btn-primary hidden" id="reveal-next-btn">Joueur suivant →</button>
+  </section>
+</template>
+
+<template id="tpl-master">
+  <section class="lg-view lg-master">
+    <div class="lg-phase-banner" id="phase-banner">🌙 Nuit 1</div>
+
+    <div id="master-step"></div>
+
+    <h3 class="lg-players-heading">Joueurs</h3>
+    <ul class="lg-alive-list" id="alive-list"></ul>
+
+    <button class="lg-link-back" id="abandon-btn" data-back="home">Abandonner la partie</button>
+  </section>
+</template>
+
+<template id="tpl-end">
+  <section class="lg-view lg-end">
+    <div class="lg-end-banner" id="end-banner"></div>
+    <h3 class="lg-players-heading">Tous les rôles</h3>
+    <ul class="lg-alive-list" id="end-role-list"></ul>
+    <button class="lg-btn-primary" id="end-newgame-btn">Nouvelle partie</button>
+  </section>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
