@@ -445,12 +445,21 @@ function renderNightStep(game, el) {
         <h3>🛡️ Salvateur</h3>
         <p>Réveille le Salvateur. Il désigne un joueur à protéger cette nuit (il ne peut pas protéger deux nuits de suite la même personne).</p>
         <div class="lg-target-grid" id="salvateur-grid">${targetChips(game, { excludeIds: game.protectedLastNight ? [game.protectedLastNight] : [] })}</div>
+        <button class="lg-btn-primary" id="salvateur-confirm" disabled>Confirmer</button>
       </div>`;
-    document.getElementById('salvateur-grid').querySelectorAll('.lg-target-chip').forEach(chip => {
+    let picked = null;
+    const grid = document.getElementById('salvateur-grid');
+    grid.querySelectorAll('.lg-target-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        game.protectedThisNight = chip.dataset.id;
-        advanceNightStep(game);
+        grid.querySelectorAll('.lg-target-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        picked = chip.dataset.id;
+        document.getElementById('salvateur-confirm').disabled = false;
       });
+    });
+    document.getElementById('salvateur-confirm').addEventListener('click', () => {
+      game.protectedThisNight = picked;
+      advanceNightStep(game);
     });
     return;
   }
@@ -462,12 +471,21 @@ function renderNightStep(game, el) {
         <h3>🐺 Loups-Garous</h3>
         <p>Réveille tous les Loups-Garous ensemble (et discrètement la Petite Fille, si elle est en jeu). Ils désignent d'un commun accord leur victime.</p>
         <div class="lg-target-grid" id="loups-grid">${targetChips(game)}</div>
+        <button class="lg-btn-primary" id="loups-confirm" disabled>Confirmer</button>
       </div>`;
-    document.getElementById('loups-grid').querySelectorAll('.lg-target-chip').forEach(chip => {
+    let picked = null;
+    const grid = document.getElementById('loups-grid');
+    grid.querySelectorAll('.lg-target-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        game.wolfTarget = chip.dataset.id;
-        advanceNightStep(game);
+        grid.querySelectorAll('.lg-target-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        picked = chip.dataset.id;
+        document.getElementById('loups-confirm').disabled = false;
       });
+    });
+    document.getElementById('loups-confirm').addEventListener('click', () => {
+      game.wolfTarget = picked;
+      advanceNightStep(game);
     });
     return;
   }
@@ -494,13 +512,20 @@ function renderNightStep(game, el) {
     document.getElementById('witch-kill').addEventListener('click', () => {
       const grid = document.getElementById('witch-kill-grid');
       grid.classList.remove('hidden');
-      grid.innerHTML = targetChips(game, { excludeIds: [game.wolfTarget] });
+      grid.innerHTML = targetChips(game, { excludeIds: [game.wolfTarget] }) + '<button class="lg-btn-primary" id="witch-kill-confirm" disabled style="width:100%;margin-top:10px;">Confirmer la potion de mort</button>';
+      let picked = null;
       grid.querySelectorAll('.lg-target-chip').forEach(chip => {
         chip.addEventListener('click', () => {
-          game.witch.deathUsed = true;
-          game.witchKillTarget = chip.dataset.id;
-          advanceNightStep(game);
+          grid.querySelectorAll('.lg-target-chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+          picked = chip.dataset.id;
+          document.getElementById('witch-kill-confirm').disabled = false;
         });
+      });
+      document.getElementById('witch-kill-confirm').addEventListener('click', () => {
+        game.witch.deathUsed = true;
+        game.witchKillTarget = picked;
+        advanceNightStep(game);
       });
     });
     document.getElementById('witch-skip').addEventListener('click', () => advanceNightStep(game));
@@ -570,6 +595,7 @@ function renderDayStep(game, el) {
       <h3>☀️ Débat &amp; vote</h3>
       <p>Place au débat entre villageois ! Une fois la discussion terminée, désignez ensemble un joueur à éliminer par vote (ou touchez "Personne n'est éliminé" en cas d'égalité).</p>
       <div class="lg-target-grid" id="vote-grid">${targetChips(game)}</div>
+      <button class="lg-btn-primary" id="vote-confirm" disabled>Confirmer l'élimination</button>
       <button class="lg-btn-ghost" id="vote-none">Personne n'est éliminé</button>
     </div>`;
 
@@ -620,9 +646,17 @@ function renderDayStep(game, el) {
     });
   }
 
-  document.getElementById('vote-grid').querySelectorAll('.lg-target-chip').forEach(chip => {
-    chip.addEventListener('click', () => resolveVote(chip.dataset.id));
+  let votePicked = null;
+  const voteGrid = document.getElementById('vote-grid');
+  voteGrid.querySelectorAll('.lg-target-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      voteGrid.querySelectorAll('.lg-target-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      votePicked = chip.dataset.id;
+      document.getElementById('vote-confirm').disabled = false;
+    });
   });
+  document.getElementById('vote-confirm').addEventListener('click', () => resolveVote(votePicked));
   document.getElementById('vote-none').addEventListener('click', () => resolveVote(null));
 }
 
