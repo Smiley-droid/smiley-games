@@ -6,6 +6,26 @@
 
 const STORAGE_KEY = 'lg_game_v1';
 
+/* ---------- Voix (narration des phases via la synthèse vocale du navigateur) ---------- */
+function isVoiceEnabled() {
+  try { return localStorage.getItem('lg_voice_v1') !== 'off'; } catch (e) { return true; }
+}
+function setVoiceEnabled(on) {
+  try { localStorage.setItem('lg_voice_v1', on ? 'on' : 'off'); } catch (e) {}
+}
+function speak(text) {
+  if (!isVoiceEnabled()) return;
+  try {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'fr-FR';
+    utter.rate = 0.92;
+    utter.pitch = 0.85;
+    window.speechSynthesis.speak(utter);
+  } catch (e) {}
+}
+
 const ROLES = {
   loup: { key: 'loup', name: 'Loup-Garou', icon: '🐺', team: 'loups', special: false,
     desc: "Chaque nuit, tu te réveilles avec les autres loups pour désigner ensemble une victime à dévorer. Le jour, fais profil bas pour ne pas te faire démasquer." },
@@ -60,6 +80,15 @@ function setView(view) {
 }
 
 document.getElementById('rules-btn').addEventListener('click', openRulesModal);
+
+const voiceBtn = document.getElementById('voice-btn');
+function refreshVoiceBtn() { voiceBtn.textContent = isVoiceEnabled() ? '🔊' : '🔇'; }
+refreshVoiceBtn();
+voiceBtn.addEventListener('click', () => {
+  setVoiceEnabled(!isVoiceEnabled());
+  refreshVoiceBtn();
+  if (!isVoiceEnabled() && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+});
 
 /* ---------- Modale règles ---------- */
 function openRulesModal() {
@@ -362,6 +391,7 @@ function renderNightStep(game, el) {
   const step = game.stepQueue[game.stepIndex];
 
   if (step === 'cupidon') {
+    speak("Que tout le village s'endorme. Cupidon, réveille-toi et désigne les deux amoureux.");
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>💘 Cupidon</h3>
@@ -388,6 +418,7 @@ function renderNightStep(game, el) {
   }
 
   if (step === 'voyante') {
+    speak('Voyante, réveille-toi et découvre le rôle du joueur de ton choix.');
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>🔮 Voyante</h3>
@@ -408,6 +439,7 @@ function renderNightStep(game, el) {
   }
 
   if (step === 'salvateur') {
+    speak('Salvateur, réveille-toi et désigne qui tu protèges cette nuit.');
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>🛡️ Salvateur</h3>
@@ -424,6 +456,7 @@ function renderNightStep(game, el) {
   }
 
   if (step === 'loups') {
+    speak('Loups-garous, réveillez-vous et désignez votre victime.');
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>🐺 Loups-Garous</h3>
@@ -441,6 +474,7 @@ function renderNightStep(game, el) {
 
   if (step === 'sorciere') {
     const targetName = game.players.find(p => p.id === game.wolfTarget).name;
+    speak('Sorcière, réveille-toi.');
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>🧪 Sorcière</h3>
@@ -488,6 +522,11 @@ function renderNightStep(game, el) {
       ? uniqueDeaths.map(id => `<li>${playerRole(game, id).icon} <strong>${escapeHtml(game.players.find(p => p.id === id).name)}</strong> (${playerRole(game, id).name})</li>`).join('')
       : '<li>Personne n\'est mort cette nuit — le village a de la chance.</li>';
 
+    const deathNames = uniqueDeaths.map(id => game.players.find(p => p.id === id).name);
+    speak(deathNames.length
+      ? `Le village se réveille. Cette nuit, ${deathNames.join(' et ')} ${deathNames.length > 1 ? 'sont morts' : 'est mort'}.`
+      : 'Le village se réveille. Personne n\'est mort cette nuit.');
+
     el.innerHTML = `
       <div class="lg-step-card">
         <h3>🌄 Le village se réveille</h3>
@@ -525,6 +564,7 @@ function renderNightStep(game, el) {
 }
 
 function renderDayStep(game, el) {
+  speak('Le soleil se lève. Le village peut débattre, puis voter pour éliminer un suspect.');
   el.innerHTML = `
     <div class="lg-step-card">
       <h3>☀️ Débat &amp; vote</h3>

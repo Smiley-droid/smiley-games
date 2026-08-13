@@ -63,6 +63,7 @@ body{
   font-weight:600;
 }
 .lg-back:hover{color:var(--parchment);}
+.lg-topbar-actions{display:flex;gap:8px;}
 .lg-rules-btn{
   background:rgba(243,233,200,0.1);
   border:1.5px solid rgba(243,233,200,0.3);
