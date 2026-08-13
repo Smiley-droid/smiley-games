@@ -593,22 +593,22 @@ function renderHome() {
 
   const picker = document.getElementById('game-picker');
   const builtinDescr = {
-    cinqrois: '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
-    flip7: 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
-    roidesnains: '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
-    caracole: 'Combinaisons de cartes, le 8 vaut 0. Dès qu\'un joueur dépasse 100, le plus bas total gagne.',
-    tarot: 'Le preneur contre la défense. Scores positifs ou négatifs selon les donnes.',
-    belote: 'Par équipes de 2. Objectif 501 points, atout et annonces.',
-    rami: 'Suites et brelans pour vider sa main. Le score le plus bas gagne.',
-    skyjo: 'Grille de cartes cachées, de -2 à 12. Objectif 100, le plus bas gagne.',
-    uno: 'Premier à vider sa main marque 0. Objectif 500, le plus bas gagne.',
-    yams: '13 catégories de dés à remplir. Le score le plus haut gagne.',
-    president: 'Hiérarchie qui change à chaque manche. Le score le plus haut gagne.',
-    millebornes: 'Course par étapes jusqu\'à 1000 km. Le score le plus haut gagne.',
-    poker: 'Suivi des jetons gagnés/perdus main par main. Le total le plus haut gagne.',
-    kaid: 'Jeu de plis traditionnel corse. Le score le plus haut gagne.',
-    killer: 'Élimination progressive de cibles secrètes. Le dernier survivant gagne.',
-    cinqcents: 'Variante du Rami, objectif 500 points. Le score le plus haut gagne.'
+    cinqrois: t('gameDescr.cinqrois'),
+    flip7: t('gameDescr.flip7'),
+    roidesnains: t('gameDescr.roidesnains'),
+    caracole: t('gameDescr.caracole'),
+    tarot: t('gameDescr.tarot'),
+    belote: t('gameDescr.belote'),
+    rami: t('gameDescr.rami'),
+    skyjo: t('gameDescr.skyjo'),
+    uno: t('gameDescr.uno'),
+    yams: t('gameDescr.yams'),
+    president: t('gameDescr.president'),
+    millebornes: t('gameDescr.millebornes'),
+    poker: t('gameDescr.poker'),
+    kaid: t('gameDescr.kaid'),
+    killer: t('gameDescr.killer'),
+    cinqcents: t('gameDescr.cinqcents')
   };
 
   function makeCard(type, def, descr) {
@@ -619,7 +619,7 @@ function renderHome() {
       <span class="game-card-suit">${def.suit}</span>
       <h3>${escapeHtml(def.label)}</h3>
       <p>${descr}</p>
-      <span class="game-card-cta">Nouvelle partie →</span>`;
+      <span class="game-card-cta">${t('home.newGameCta')}</span>`;
     btn.addEventListener('click', () => {
       setupSelectedGame = type;
       setupSelectedPlayers = [];
@@ -651,8 +651,8 @@ function renderHome() {
   undercoverCard.innerHTML = `
     <span class="game-card-suit">🕵️</span>
     <h3>Undercover</h3>
-    <p>Jeu de bluff et de déduction à un seul téléphone. Pas de score à saisir : ce jeu se joue à part.</p>
-    <span class="game-card-cta">Ouvrir Undercover →</span>`;
+    <p>${t('gameDescr.undercover')}</p>
+    <span class="game-card-cta">${t('home.openUndercover')}</span>`;
   undercoverCard.addEventListener('click', () => { window.location.href = 'undercover/index.html'; });
   picker.appendChild(undercoverCard);
 
@@ -662,8 +662,8 @@ function renderHome() {
   loupGarouCard.innerHTML = `
     <span class="game-card-suit">🐺</span>
     <h3>Loup-Garou</h3>
-    <p>Rôles cachés, phases nuit/jour, meneur de jeu automatique. Pas de score à saisir : ce jeu se joue à part.</p>
-    <span class="game-card-cta">Ouvrir Loup-Garou →</span>`;
+    <p>${t('gameDescr.loupgarou')}</p>
+    <span class="game-card-cta">${t('home.openLoupGarou')}</span>`;
   loupGarouCard.addEventListener('click', () => { window.location.href = 'loup-garou/index.html'; });
   picker.appendChild(loupGarouCard);
 
@@ -1091,7 +1091,7 @@ function renderBoard() {
   } else {
     const newGameBtn = document.createElement('button');
     newGameBtn.className = 'btn-primary';
-    newGameBtn.textContent = 'Nouvelle partie';
+    newGameBtn.textContent = t('board.newGameBtn');
     newGameBtn.addEventListener('click', () => {
       clearCurrentGame();
       setView('home');
@@ -1426,7 +1426,29 @@ const TRANSLATIONS = {
     'customs.newBtn': '+ Nouveau jeu personnalisé',
     'players.title': 'Joueurs enregistrés',
     'players.hint': 'Ces joueurs sont sauvegardés sur cet appareil et réutilisables pour toutes les parties.',
-    'history.title': 'Historique des parties'
+    'history.title': 'Historique des parties',
+    'home.newGameCta': 'Nouvelle partie →',
+    'home.openUndercover': 'Ouvrir Undercover →',
+    'home.openLoupGarou': 'Ouvrir Loup-Garou →',
+    'board.newGameBtn': 'Nouvelle partie',
+    'gameDescr.cinqrois': '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
+    'gameDescr.flip7': 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
+    'gameDescr.roidesnains': '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
+    'gameDescr.caracole': "Combinaisons de cartes, le 8 vaut 0. Dès qu'un joueur dépasse 100, le plus bas total gagne.",
+    'gameDescr.tarot': 'Le preneur contre la défense. Scores positifs ou négatifs selon les donnes.',
+    'gameDescr.belote': 'Par équipes de 2. Objectif 501 points, atout et annonces.',
+    'gameDescr.rami': 'Suites et brelans pour vider sa main. Le score le plus bas gagne.',
+    'gameDescr.skyjo': 'Grille de cartes cachées, de -2 à 12. Objectif 100, le plus bas gagne.',
+    'gameDescr.uno': 'Premier à vider sa main marque 0. Objectif 500, le plus bas gagne.',
+    'gameDescr.yams': '13 catégories de dés à remplir. Le score le plus haut gagne.',
+    'gameDescr.president': 'Hiérarchie qui change à chaque manche. Le score le plus haut gagne.',
+    'gameDescr.millebornes': "Course par étapes jusqu'à 1000 km. Le score le plus haut gagne.",
+    'gameDescr.poker': 'Suivi des jetons gagnés/perdus main par main. Le total le plus haut gagne.',
+    'gameDescr.kaid': 'Jeu de plis traditionnel corse. Le score le plus haut gagne.',
+    'gameDescr.killer': 'Élimination progressive de cibles secrètes. Le dernier survivant gagne.',
+    'gameDescr.cinqcents': 'Variante du Rami, objectif 500 points. Le score le plus haut gagne.',
+    'gameDescr.undercover': 'Jeu de bluff et de déduction à un seul téléphone. Pas de score à saisir : ce jeu se joue à part.',
+    'gameDescr.loupgarou': 'Rôles cachés, phases nuit/jour, meneur de jeu automatique. Pas de score à saisir : ce jeu se joue à part.'
   },
   en: {
     'nav.home': 'Home', 'nav.players': 'Players', 'nav.customs': 'Custom games', 'nav.history': 'History',
@@ -1472,7 +1494,29 @@ const TRANSLATIONS = {
     'customs.newBtn': '+ New custom game',
     'players.title': 'Registered players',
     'players.hint': 'These players are saved on this device and reusable across every game.',
-    'history.title': 'Game history'
+    'history.title': 'Game history',
+    'home.newGameCta': 'New game →',
+    'home.openUndercover': 'Open Undercover →',
+    'home.openLoupGarou': 'Open Werewolf →',
+    'board.newGameBtn': 'New game',
+    'gameDescr.cinqrois': '11 rounds. Runs &amp; sets combinations. Lowest score wins.',
+    'gameDescr.flip7': 'Push your luck. Target 200 points. Highest score wins.',
+    'gameDescr.roidesnains': '7 hands, a different quest each time. Highest score wins.',
+    'gameDescr.caracole': "Card combinations, 8 counts as 0. Once someone tops 100, the lowest total wins.",
+    'gameDescr.tarot': 'The bidder against the defense. Positive or negative scores depending on the hand.',
+    'gameDescr.belote': 'Played in teams of 2. Target 501 points, trump suit and bids.',
+    'gameDescr.rami': 'Runs and sets to empty your hand. Lowest score wins.',
+    'gameDescr.skyjo': 'Grid of hidden cards, from -2 to 12. Target 100, lowest wins.',
+    'gameDescr.uno': 'First to empty their hand scores 0. Target 500, lowest wins.',
+    'gameDescr.yams': '13 dice categories to fill in. Highest score wins.',
+    'gameDescr.president': 'Hierarchy that shifts every round. Highest score wins.',
+    'gameDescr.millebornes': "Step-by-step race up to 1000 km. Highest score wins.",
+    'gameDescr.poker': 'Track chips won/lost hand by hand. Highest total wins.',
+    'gameDescr.kaid': 'Traditional Corsican trick-taking game. Highest score wins.',
+    'gameDescr.killer': 'Progressive elimination of secret targets. Last survivor wins.',
+    'gameDescr.cinqcents': 'Rummy variant, target 500 points. Highest score wins.',
+    'gameDescr.undercover': "Bluffing and deduction game on a single phone. No score to enter: this game is played separately.",
+    'gameDescr.loupgarou': "Hidden roles, night/day phases, automatic game master. No score to enter: this game is played separately."
   }
 };
 
