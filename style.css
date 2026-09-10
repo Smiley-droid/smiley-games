@@ -91,13 +91,17 @@ body{
 .topnav{display:flex;flex-wrap:wrap;gap:6px;}
 .nav-btn{
   background:rgba(var(--felt-text-rgb),0.08);
-  border:1px solid rgba(var(--felt-text-rgb),0.18);
+  border:1px solid rgba(var(--felt-text-rgb),0.22);
+  border-top-color:rgba(var(--felt-text-rgb),0.35);
   color:var(--paper);
   padding:8px 14px;
   border-radius:999px;
   font-size:0.85rem;
   font-weight:500;
   cursor:pointer;
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  box-shadow:0 1px 1px rgba(255,255,255,0.08) inset, 0 4px 10px rgba(0,0,0,0.18);
   transition:background .15s ease, transform .1s ease;
 }
 .nav-btn:hover{background:rgba(var(--felt-text-rgb),0.16);}
@@ -549,18 +553,23 @@ table.scoreboard{
 /* Modale import / export */
 .modal-overlay{
   position:fixed; inset:0;
-  background:rgba(10,20,15,0.6);
+  background:rgba(10,20,15,0.45);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
   display:flex; align-items:center; justify-content:center;
   padding:18px;
   z-index:100;
 }
 .modal-card{
-  background:var(--paper);
+  background:rgba(246,241,226,0.78);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.5);
   border-radius:var(--radius);
   padding:20px 20px 18px;
   max-width:440px;
   width:100%;
-  box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  box-shadow:0 1px 1px rgba(255,255,255,0.6) inset, 0 20px 50px rgba(0,0,0,0.45);
   max-height:85vh;
   overflow-y:auto;
 }
