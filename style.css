@@ -13,6 +13,7 @@
   --gold-dim:#8f7433;
   --crimson:#a33d3d;
   --felt-text-rgb:246,241,226;
+  --accent-text:#231a06;
   --line:rgba(32,36,31,0.14);
   --radius:18px;
   --shadow-card:0 10px 30px rgba(0,0,0,0.35);
@@ -38,6 +39,32 @@
   --felt-text-rgb:32,36,31;
   --gold-dim:#a8823f;
   --shadow-card:0 8px 22px rgba(60,50,20,0.18);
+}
+[data-theme="appledark"]{
+  --felt-1:#000000;
+  --felt-2:#1c1c1e;
+  --felt-text-rgb:255,255,255;
+  --gold-dim:#0a84ff;
+  --gold:#0a84ff;
+  --accent-text:#ffffff;
+  --shadow-card:0 10px 30px rgba(0,0,0,0.6);
+}
+[data-theme="applelight"]{
+  --felt-1:#ffffff;
+  --felt-2:#f2f2f7;
+  --felt-text-rgb:0,0,0;
+  --gold-dim:#007aff;
+  --gold:#007aff;
+  --accent-text:#ffffff;
+  --shadow-card:0 6px 18px rgba(0,0,0,0.12);
+}
+[data-theme="fantasy"]{
+  --felt-1:#2a1152;
+  --felt-2:#4b1d78;
+  --felt-text-rgb:238,225,255;
+  --gold-dim:#c98bf0;
+  --gold:#e6b8ff;
+  --shadow-card:0 12px 32px rgba(74,20,120,0.5);
 }
 
 *{box-sizing:border-box;}
@@ -108,7 +135,7 @@ body{
 .nav-btn:active{transform:scale(0.97);}
 .nav-btn.active{
   background:var(--gold);
-  color:#231a06;
+  color:var(--accent-text);
   border-color:var(--gold);
   font-weight:600;
 }
@@ -356,7 +383,7 @@ body{
 
 .btn-primary{
   background:var(--gold);
-  color:#231a06;
+  color:var(--accent-text);
   border:none;
   padding:13px 20px;
   border-radius:10px;
@@ -527,7 +554,7 @@ table.scoreboard{
   padding:5px 10px;border-radius:999px;background:var(--paper-2);
   font-family:'JetBrains Mono',monospace;font-size:0.8rem;
 }
-.history-pill.win{background:var(--gold);color:#231a06;font-weight:700;}
+.history-pill.win{background:var(--gold);color:var(--accent-text);font-weight:700;}
 .history-actions{margin-top:10px;}
 
 .foot{

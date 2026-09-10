@@ -298,7 +298,10 @@ const THEMES = [
   { key: 'green', label: 'Feutre vert', dot: 'linear-gradient(135deg,#155a41,#0f3d2e)' },
   { key: 'burgundy', label: 'Feutre bordeaux', dot: 'linear-gradient(135deg,#7a1c3f,#54132e)' },
   { key: 'navy', label: 'Feutre bleu nuit', dot: 'linear-gradient(135deg,#164066,#0c2a48)' },
-  { key: 'light', label: 'Clair', dot: 'linear-gradient(135deg,#f6f1e2,#ddd3b8)' }
+  { key: 'light', label: 'Clair', dot: 'linear-gradient(135deg,#f6f1e2,#ddd3b8)' },
+  { key: 'appledark', label: 'Apple Sombre', dot: 'linear-gradient(135deg,#1c1c1e,#000000)' },
+  { key: 'applelight', label: 'Apple Clair', dot: 'linear-gradient(135deg,#ffffff,#f2f2f7)' },
+  { key: 'fantasy', label: 'Fantastique', dot: 'linear-gradient(135deg,#e6b8ff,#2a1152)' }
 ];
 
 function applyTheme(key) {
