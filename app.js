@@ -234,58 +234,96 @@ function roundLabel(gameDef, n) { return `${gameDef.roundWord} ${n}`; }
 
 /* ---------- Règles des jeux (affichées via le bouton "?") ---------- */
 const BUILTIN_RULES = {
-  cinqrois: `<p>11 manches, une par nombre de cartes distribuées (de 3 à 13). Chaque manche, on cherche à se débarrasser de sa main en formant des <strong>suites</strong> (cartes qui se suivent, même couleur) et des <strong>familles</strong> (même valeur, couleurs différentes).</p>
+  fr: {
+    cinqrois: `<p>11 manches, une par nombre de cartes distribuées (de 3 à 13). Chaque manche, on cherche à se débarrasser de sa main en formant des <strong>suites</strong> (cartes qui se suivent, même couleur) et des <strong>familles</strong> (même valeur, couleurs différentes).</p>
     <p>À la fin de chaque manche, les cartes qui restent en main comptent en points de pénalité (figures = 10, As = 1, etc. selon vos règles de table). Le score le plus <strong>bas</strong> à la fin des 11 manches gagne.</p>`,
-  flip7: `<p>Jeu de prise de risque : à chaque tour, on retourne des cartes une par une et on peut s'arrêter ("rester") ou continuer ("flip"). Si on retourne deux fois la même valeur, on est éliminé du tour sans marquer de points.</p>
+    flip7: `<p>Jeu de prise de risque : à chaque tour, on retourne des cartes une par une et on peut s'arrêter ("rester") ou continuer ("flip"). Si on retourne deux fois la même valeur, on est éliminé du tour sans marquer de points.</p>
     <p>Réunir 7 cartes différentes dans un tour rapporte un bonus de +15. Premier joueur à atteindre <strong>200 points</strong> (score le plus haut) déclenche la fin de la partie.</p>`,
-  roidesnains: `<p>7 donnes, chacune avec une "quête" différente (annoncée avant de jouer) qui détermine comment les points sont gagnés ou perdus ce tour-là — d'où la possibilité de scores négatifs.</p>
+    roidesnains: `<p>7 donnes, chacune avec une "quête" différente (annoncée avant de jouer) qui détermine comment les points sont gagnés ou perdus ce tour-là — d'où la possibilité de scores négatifs.</p>
     <p>Après les 7 donnes, le total le plus <strong>haut</strong> gagne.</p>`,
-  caracole: `<p>Jeu de combinaisons (52 cartes) : paires, brelans, carrés, ou suites de 3+ cartes de même couleur à poser sur la pile. Un joueur peut "caracoler" quand il lui reste 10 points ou moins en main.</p>
+    caracole: `<p>Jeu de combinaisons (52 cartes) : paires, brelans, carrés, ou suites de 3+ cartes de même couleur à poser sur la pile. Un joueur peut "caracoler" quand il lui reste 10 points ou moins en main.</p>
     <p>Valeur des cartes : 1 à 7 = leur valeur, <strong>8 = 0</strong>, Valet = 11, Dame = 12, Roi = 13. Le vainqueur de la manche marque 0, le "caracoleur" qui ne gagne pas prend 30 points de pénalité, les autres marquent les points restant en main.</p>
     <p>Dès qu'un joueur <strong>dépasse 100 points</strong> au total, la partie s'arrête : le total le plus <strong>bas</strong> gagne.</p>`,
-  tarot: `<p>Jeu à 4 (ou 3/5) joueurs avec le Fou, les 21 atouts et les rois. À chaque donne, un joueur (le "preneur") annonce un contrat et joue seul contre les autres, qui font "défense".</p>
+    tarot: `<p>Jeu à 4 (ou 3/5) joueurs avec le Fou, les 21 atouts et les rois. À chaque donne, un joueur (le "preneur") annonce un contrat et joue seul contre les autres, qui font "défense".</p>
     <p>Selon le nombre de points au Bout ramassés, le preneur gagne ou perd des points — qui viennent en négatif/positif selon les cas, d'où l'utilité des scores négatifs. Sur plusieurs donnes, le total le plus <strong>haut</strong> gagne.</p>`,
-  belote: `<p>Traditionnellement en 2 équipes de 2. Chaque donne, une couleur est choisie comme atout (par annonce ou "prise"), et l'équipe qui prend doit ramasser plus de la moitié des 162 points de la donne (ou faire une "belote-rebelote", un "capot", etc.).</p>
+    belote: `<p>Traditionnellement en 2 équipes de 2. Chaque donne, une couleur est choisie comme atout (par annonce ou "prise"), et l'équipe qui prend doit ramasser plus de la moitié des 162 points de la donne (ou faire une "belote-rebelote", un "capot", etc.).</p>
     <p>Comme l'appli compte par "joueur", utilisez un nom par équipe (ex. "Nous" / "Eux"). Premier total à atteindre <strong>501 points</strong> gagne.</p>`,
-  rami: `<p>Chaque joueur essaie de se débarrasser de sa main en formant des combinaisons : <strong>suites</strong> (cartes qui se suivent, même couleur) et <strong>brelans/carrés</strong> (même valeur).</p>
+    rami: `<p>Chaque joueur essaie de se débarrasser de sa main en formant des combinaisons : <strong>suites</strong> (cartes qui se suivent, même couleur) et <strong>brelans/carrés</strong> (même valeur).</p>
     <p>À la fin d'une manche, les cartes qui restent en main comptent en pénalité. Après plusieurs manches, le score le plus <strong>bas</strong> gagne.</p>`,
-  skyjo: `<p>Chaque joueur a une grille de 12 cartes face cachée (valeurs de -2 à 12) et en retourne progressivement en piochant/défaussant, en essayant d'avoir le total le plus bas.</p>
+    skyjo: `<p>Chaque joueur a une grille de 12 cartes face cachée (valeurs de -2 à 12) et en retourne progressivement en piochant/défaussant, en essayant d'avoir le total le plus bas.</p>
     <p>Dès qu'un joueur retourne sa dernière carte, un ultime tour est joué puis les grilles sont révélées. Dès qu'un total <strong>atteint 100</strong>, la partie s'arrête : le plus <strong>bas</strong> total gagne.</p>`,
-  uno: `<p>Le premier joueur à vider sa main remporte la manche et marque 0. Les autres comptent les points des cartes qui leur restent en main (cartes chiffrées = leur valeur, cartes spéciales = 20, Joker/+4 = 50).</p>
+    uno: `<p>Le premier joueur à vider sa main remporte la manche et marque 0. Les autres comptent les points des cartes qui leur restent en main (cartes chiffrées = leur valeur, cartes spéciales = 20, Joker/+4 = 50).</p>
     <p>Ces points s'accumulent manche après manche. Premier joueur à <strong>atteindre 500 points perd</strong> — donc le total le plus <strong>bas</strong> gagne à l'arrêt de la partie.</p>`,
-  yams: `<p>Feuille de 13 catégories (brelan, full, suite, yams, etc.) à remplir une par une au fil des lancers de 5 dés, chacune ne pouvant être utilisée qu'une seule fois.</p>
+    yams: `<p>Feuille de 13 catégories (brelan, full, suite, yams, etc.) à remplir une par une au fil des lancers de 5 dés, chacune ne pouvant être utilisée qu'une seule fois.</p>
     <p>Dans l'appli, chaque "manche" correspond à une catégorie remplie : entrez le score obtenu (0 si la catégorie est ratée/barrée). Après les 13 catégories, le total le plus <strong>haut</strong> gagne.</p>`,
-  president: `<p>Chaque manche, on se débarrasse de ses cartes en jouant des combinaisons de force croissante (paires, brelans...). Le premier à finir devient "Président", le dernier devient "Trou du cul" pour la manche suivante (échange de cartes entre eux).</p>
+    president: `<p>Chaque manche, on se débarrasse de ses cartes en jouant des combinaisons de force croissante (paires, brelans...). Le premier à finir devient "Président", le dernier devient "Trou du cul" pour la manche suivante (échange de cartes entre eux).</p>
     <p>Comptez les points comme vous préférez (ex. Président +3, dernier -3, ou juste l'ordre de sortie). Le total le plus <strong>haut</strong> gagne après le nombre de manches choisi.</p>`,
-  millebornes: `<p>Chaque équipe/joueur pose des cartes Étape (bornes de 25 à 200 km) pour avancer, en gérant attaques (Crevaison, Panne...) et parades. Objectif : atteindre <strong>1000 km</strong> (ou 700 en partie courte) avant les autres.</p>
+    millebornes: `<p>Chaque équipe/joueur pose des cartes Étape (bornes de 25 à 200 km) pour avancer, en gérant attaques (Crevaison, Panne...) et parades. Objectif : atteindre <strong>1000 km</strong> (ou 700 en partie courte) avant les autres.</p>
     <p>Des primes s'ajoutent en fin de manche (Coup Fourré, Allonge, Sans Bottes...). Le score le plus <strong>haut</strong> gagne.</p>`,
-  poker: `<p>Suivi de jetons pour une partie de poker maison (Texas Hold'em ou autre variante). Entrez le gain ou la perte nette de chaque joueur à chaque main (les pertes en négatif).</p>
+    poker: `<p>Suivi de jetons pour une partie de poker maison (Texas Hold'em ou autre variante). Entrez le gain ou la perte nette de chaque joueur à chaque main (les pertes en négatif).</p>
     <p>Le total le plus <strong>haut</strong> à la fin de la session remporte la partie — la somme de tous les joueurs doit toujours être égale à zéro si tout est bien compté !</p>`,
-  kaid: `<p>Jeu de plis traditionnel corse, jouable à 3 ou 4. Chaque manche, on compte les points des plis remportés (valeurs classiques : As, 10, Roi, Dame, Valet...).</p>
+    kaid: `<p>Jeu de plis traditionnel corse, jouable à 3 ou 4. Chaque manche, on compte les points des plis remportés (valeurs classiques : As, 10, Roi, Dame, Valet...).</p>
     <p>Après plusieurs manches, le total le plus <strong>haut</strong> gagne.</p>`,
-  killer: `<p>Chaque joueur reçoit une carte cible (un autre joueur à "éliminer") sans que personne ne le sache. On joue des tours successifs ; être éliminé signifie perdre la partie pour ce joueur, l'assassin hérite alors de sa cible.</p>
+    killer: `<p>Chaque joueur reçoit une carte cible (un autre joueur à "éliminer") sans que personne ne le sache. On joue des tours successifs ; être éliminé signifie perdre la partie pour ce joueur, l'assassin hérite alors de sa cible.</p>
     <p>Notez à chaque manche le nombre de tours survécus ou de cibles éliminées. Le total le plus <strong>haut</strong> (dernier survivant) gagne.</p>`,
-  cinqcents: `<p>Variante du Rami où chaque combinaison posée rapporte des points définis (ex. As = 15-20, figures = 10, etc.) tandis que les cartes qui restent en main à la fin d'une manche sont des points négatifs.</p>
+    cinqcents: `<p>Variante du Rami où chaque combinaison posée rapporte des points définis (ex. As = 15-20, figures = 10, etc.) tandis que les cartes qui restent en main à la fin d'une manche sont des points négatifs.</p>
     <p>Premier joueur à atteindre <strong>500 points</strong> remporte la partie.</p>`
+  },
+  en: {
+    cinqrois: `<p>11 rounds, one for each number of cards dealt (from 3 to 13). Each round, try to empty your hand by forming <strong>runs</strong> (consecutive cards, same suit) and <strong>sets</strong> (same value, different suits).</p>
+    <p>At the end of each round, cards left in hand count as penalty points (face cards = 10, Ace = 1, etc. per your house rules). The <strong>lowest</strong> score after the 11 rounds wins.</p>`,
+    flip7: `<p>Push-your-luck game: each turn, cards are flipped one by one and you can choose to "stay" or keep "flipping." Flipping a duplicate value busts you for the turn with no points.</p>
+    <p>Collecting 7 different cards in a turn gives a +15 bonus. First player to reach <strong>200 points</strong> (highest score) triggers the end of the game.</p>`,
+    roidesnains: `<p>7 hands, each with a different "quest" (announced before playing) that determines how points are won or lost that round — hence the possibility of negative scores.</p>
+    <p>After the 7 hands, the <strong>highest</strong> total wins.</p>`,
+    caracole: `<p>Combination game (52 cards): pairs, three/four of a kind, or runs of 3+ same-suit cards played onto the pile. A player can "caracole" once they have 10 points or less left in hand.</p>
+    <p>Card values: 1 to 7 = face value, <strong>8 = 0</strong>, Jack = 11, Queen = 12, King = 13. The round winner scores 0; the "caracoler" who doesn't win takes a 30-point penalty; everyone else scores the points remaining in hand.</p>
+    <p>As soon as a player's total <strong>exceeds 100 points</strong>, the game stops: the <strong>lowest</strong> total wins.</p>`,
+    tarot: `<p>A game for 4 (or 3/5) players featuring the Fool, the 21 trumps, and the kings. Each hand, one player (the "bidder") announces a contract and plays alone against the others, who defend.</p>
+    <p>Depending on the points collected in the "Bout," the bidder gains or loses points — which can be negative or positive, hence the usefulness of negative scores. Over several hands, the <strong>highest</strong> total wins.</p>`,
+    belote: `<p>Traditionally played in 2 teams of 2. Each hand, a suit is chosen as trump (by bid or "prise"), and the bidding team must collect more than half of the hand's 162 points (or achieve a "belote-rebelote," a "capot," etc.).</p>
+    <p>Since the app scores by "player," use one name per team (e.g. "Us" / "Them"). First team to reach <strong>501 points</strong> wins.</p>`,
+    rami: `<p>Each player tries to empty their hand by forming combinations: <strong>runs</strong> (consecutive cards, same suit) and <strong>sets</strong> (same value).</p>
+    <p>At the end of a round, cards left in hand count as a penalty. After several rounds, the <strong>lowest</strong> score wins.</p>`,
+    skyjo: `<p>Each player has a grid of 12 face-down cards (values from -2 to 12) and progressively reveals them by drawing/discarding, trying to keep the lowest total.</p>
+    <p>Once a player flips their last card, one final turn is played, then all grids are revealed. As soon as a total <strong>reaches 100</strong>, the game stops: the <strong>lowest</strong> total wins.</p>`,
+    uno: `<p>The first player to empty their hand wins the round and scores 0. Everyone else counts the points of the cards left in hand (numbered cards = face value, special cards = 20, Wild/+4 = 50).</p>
+    <p>These points accumulate round after round. The first player to <strong>reach 500 points loses</strong> — so the <strong>lowest</strong> total wins when the game stops.</p>`,
+    yams: `<p>A sheet of 13 categories (three of a kind, full house, straight, yams, etc.) filled in one at a time as you roll 5 dice, each usable only once.</p>
+    <p>In the app, each "round" is one filled category: enter the score you got (0 if the category is missed/crossed out). After all 13 categories, the <strong>highest</strong> total wins.</p>`,
+    president: `<p>Each round, players get rid of cards by playing combinations of increasing strength (pairs, three of a kind...). The first to finish becomes "President," the last becomes the "Asshole" for the next round (they swap cards).</p>
+    <p>Score points however you like (e.g. President +3, last place -3, or just finishing order). The <strong>highest</strong> total wins after the chosen number of rounds.</p>`,
+    millebornes: `<p>Each team/player plays Distance cards (25 to 200 km milestones) to advance, managing hazards (Flat Tire, Breakdown...) and safety cards. Goal: reach <strong>1000 km</strong> (or 700 in a short game) before the others.</p>
+    <p>Bonus points are added at the end of a round (Coup Fourré, Extension, Safe Trip...). The <strong>highest</strong> score wins.</p>`,
+    poker: `<p>Chip tracking for a home poker game (Texas Hold'em or other variant). Enter each player's net win or loss for every hand (losses as negative numbers).</p>
+    <p>The <strong>highest</strong> total at the end of the session wins — the sum across all players should always equal zero if everything is tallied correctly!</p>`,
+    kaid: `<p>A traditional Corsican trick-taking game, played with 3 or 4 players. Each round, count the points from tricks won (classic values: Ace, 10, King, Queen, Jack...).</p>
+    <p>After several rounds, the <strong>highest</strong> total wins.</p>`,
+    killer: `<p>Each player secretly receives a target card (another player to "eliminate") without anyone knowing. Successive turns are played; being eliminated means losing the game, and the killer inherits their victim's target.</p>
+    <p>Note each round the number of turns survived or targets eliminated. The <strong>highest</strong> total (last survivor) wins.</p>`,
+    cinqcents: `<p>A Rummy variant where each combination played earns set point values (e.g. Ace = 15-20, face cards = 10, etc.), while cards left in hand at the end of a round count as negative points.</p>
+    <p>First player to reach <strong>500 points</strong> wins the game.</p>`
+  }
 };
 
 function getRulesHtml(gameDef) {
   if (!gameDef.custom) {
-    return BUILTIN_RULES[gameDef.id] || '<p>Règles non disponibles.</p>';
+    const table = BUILTIN_RULES[currentLang] || BUILTIN_RULES.fr;
+    return table[gameDef.id] || (BUILTIN_RULES.fr[gameDef.id]) || `<p>${t('rules.notAvailable')}</p>`;
   }
   // Jeu personnalisé : pas de vraies règles de carte connues, on explique le fonctionnement configuré.
   const endText = gameDef.endMode === 'target'
-    ? `dès qu'un total atteint ou dépasse <strong>${gameDef.defaultTarget} points</strong>`
-    : `après <strong>${gameDef.defaultRounds} ${gameDef.roundWord.toLowerCase()}(s)</strong>`;
-  const winText = gameDef.direction === 'asc' ? 'le score le plus <strong>bas</strong> gagne' : 'le score le plus <strong>haut</strong> gagne';
-  return `<p>Jeu personnalisé — les règles de cartes précises se jouent entre vous à table, Smiley Games se charge juste des totaux.</p>
-    <p>La partie se termine ${endText}. À ce moment-là, ${winText}.</p>
-    <p>Scores négatifs pour une ${gameDef.roundWord.toLowerCase()} : ${gameDef.allowNegative ? '<strong>autorisés</strong>' : '<strong>non autorisés</strong>'}.</p>`;
+    ? tf('rules.customEndTarget', { n: gameDef.defaultTarget })
+    : tf('rules.customEndRounds', { n: gameDef.defaultRounds, word: gameDef.roundWord.toLowerCase() });
+  const winText = gameDef.direction === 'asc' ? t('rules.customWinAsc') : t('rules.customWinDesc');
+  return `<p>${t('rules.customIntro')}</p>
+    <p>${tf('rules.customEndsWhen', { endText, winText })}</p>
+    <p>${tf('rules.customNegative', { word: gameDef.roundWord.toLowerCase(), state: gameDef.allowNegative ? t('rules.allowed') : t('rules.notAllowed') })}</p>`;
 }
 
 function openRulesModal(gameDef) {
   openModal(`
-    <h3 class="modal-title">${gameDef.suit} Règles — ${escapeHtml(gameDef.label)}</h3>
+    <h3 class="modal-title">${gameDef.suit} ${t('common.rulesTitle')} — ${escapeHtml(gameDef.label)}</h3>
     ${getRulesHtml(gameDef)}
     <div class="modal-actions">
       <button class="btn-primary" id="rules-close-btn">${t('common.close')}</button>
@@ -1510,6 +1548,16 @@ const TRANSLATIONS = {
     'home.resumeTitle': 'Partie en cours — {label}',
     'home.resumeRounds': '{n} manche(s) jouée(s)',
     'home.resumeBtn': 'Reprendre →',
+    'rules.notAvailable': 'Règles non disponibles.',
+    'rules.customIntro': 'Jeu personnalisé — les règles de cartes précises se jouent entre vous à table, Smiley Games se charge juste des totaux.',
+    'rules.customEndTarget': "dès qu'un total atteint ou dépasse <strong>{n} points</strong>",
+    'rules.customEndRounds': 'après <strong>{n} {word}(s)</strong>',
+    'rules.customWinAsc': 'le score le plus <strong>bas</strong> gagne',
+    'rules.customWinDesc': 'le score le plus <strong>haut</strong> gagne',
+    'rules.customEndsWhen': 'La partie se termine {endText}. À ce moment-là, {winText}.',
+    'rules.customNegative': 'Scores négatifs pour une {word} : {state}.',
+    'rules.allowed': '<strong>autorisés</strong>',
+    'rules.notAllowed': '<strong>non autorisés</strong>',
     'gameDescr.cinqrois': '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
     'gameDescr.flip7': 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
     'gameDescr.roidesnains': '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
@@ -1656,6 +1704,16 @@ const TRANSLATIONS = {
     'home.resumeTitle': 'Game in progress — {label}',
     'home.resumeRounds': '{n} round(s) played',
     'home.resumeBtn': 'Resume →',
+    'rules.notAvailable': 'Rules not available.',
+    'rules.customIntro': "Custom game — the exact card rules are played out among you at the table, Smiley Games just handles the totals.",
+    'rules.customEndTarget': 'as soon as a total reaches or exceeds <strong>{n} points</strong>',
+    'rules.customEndRounds': 'after <strong>{n} {word}(s)</strong>',
+    'rules.customWinAsc': 'the <strong>lowest</strong> score wins',
+    'rules.customWinDesc': 'the <strong>highest</strong> score wins',
+    'rules.customEndsWhen': 'The game ends {endText}. At that point, {winText}.',
+    'rules.customNegative': 'Negative scores for a {word}: {state}.',
+    'rules.allowed': '<strong>allowed</strong>',
+    'rules.notAllowed': '<strong>not allowed</strong>',
     'gameDescr.cinqrois': '11 rounds. Runs &amp; sets combinations. Lowest score wins.',
     'gameDescr.flip7': 'Push your luck. Target 200 points. Highest score wins.',
     'gameDescr.roidesnains': '7 hands, a different quest each time. Highest score wins.',
