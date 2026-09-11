@@ -288,17 +288,17 @@ function openRulesModal(gameDef) {
     <h3 class="modal-title">${gameDef.suit} Règles — ${escapeHtml(gameDef.label)}</h3>
     ${getRulesHtml(gameDef)}
     <div class="modal-actions">
-      <button class="btn-primary" id="rules-close-btn">Fermer</button>
+      <button class="btn-primary" id="rules-close-btn">${t('common.close')}</button>
     </div>`);
   document.getElementById('rules-close-btn').addEventListener('click', closeModal);
 }
 
 /* ---------- Thème (couleur de table + mode clair) ---------- */
 const THEMES = [
-  { key: 'auto', label: 'Automatique (suit l\'appareil)', dot: 'linear-gradient(135deg,#ffffff 50%,#000000 50%)' },
-  { key: 'appledark', label: 'Apple Sombre', dot: 'linear-gradient(135deg,#1c1c1e,#000000)' },
-  { key: 'applelight', label: 'Apple Clair', dot: 'linear-gradient(135deg,#ffffff,#f2f2f7)' },
-  { key: 'fantasy', label: 'Fantastique', dot: 'linear-gradient(135deg,#e6b8ff,#2a1152)' }
+  { key: 'auto', labelKey: 'theme.auto', dot: 'linear-gradient(135deg,#ffffff 50%,#000000 50%)' },
+  { key: 'appledark', labelKey: 'theme.appledark', dot: 'linear-gradient(135deg,#1c1c1e,#000000)' },
+  { key: 'applelight', labelKey: 'theme.applelight', dot: 'linear-gradient(135deg,#ffffff,#f2f2f7)' },
+  { key: 'fantasy', labelKey: 'theme.fantasy', dot: 'linear-gradient(135deg,#e6b8ff,#2a1152)' }
 ];
 
 function applyTheme(key) {
@@ -310,19 +310,19 @@ function applyTheme(key) {
 function openThemeModal() {
   const current = document.documentElement.getAttribute('data-theme') || 'auto';
   const overlay = openModal(`
-    <h3 class="modal-title">🎨 Thème de la table</h3>
+    <h3 class="modal-title">🎨 ${t('theme.modalTitle')}</h3>
     <div class="theme-grid" id="theme-grid"></div>
     <div class="modal-actions">
-      <button class="btn-ghost" id="theme-close-btn">Fermer</button>
+      <button class="btn-ghost" id="theme-close-btn">${t('common.close')}</button>
     </div>`);
   const grid = overlay.querySelector('#theme-grid');
-  THEMES.forEach(t => {
+  THEMES.forEach(theme => {
     const opt = document.createElement('button');
     opt.type = 'button';
-    opt.className = 'theme-opt' + (t.key === current ? ' selected' : '');
-    opt.innerHTML = `<span class="theme-dot" style="background:${t.dot}"></span><span>${t.label}</span>`;
+    opt.className = 'theme-opt' + (theme.key === current ? ' selected' : '');
+    opt.innerHTML = `<span class="theme-dot" style="background:${theme.dot}"></span><span>${t(theme.labelKey)}</span>`;
     opt.addEventListener('click', () => {
-      applyTheme(t.key);
+      applyTheme(theme.key);
       grid.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
     });
@@ -386,12 +386,12 @@ function openModal(innerHtml) {
 function openExportModal(game) {
   const code = exportGameCode(game);
   const overlay = openModal(`
-    <h3 class="modal-title">Exporter la partie</h3>
-    <p class="hint">Copie ce code (${game.finished ? 'partie terminée' : 'partie en cours'}) et envoie-le pour le reprendre sur un autre appareil, via l'onglet « Importer ».</p>
+    <h3 class="modal-title">${t('export.title')}</h3>
+    <p class="hint">${tf('export.desc', { status: game.finished ? t('export.statusFinished') : t('export.statusOngoing') })}</p>
     <textarea id="export-code" class="code-textarea" rows="6" readonly></textarea>
     <div class="modal-actions">
-      <button class="btn-primary" id="export-copy-btn">Copier le code</button>
-      <button class="btn-ghost" id="export-close-btn">Fermer</button>
+      <button class="btn-primary" id="export-copy-btn">${t('export.copyBtn')}</button>
+      <button class="btn-ghost" id="export-close-btn">${t('common.close')}</button>
     </div>`);
   const ta = overlay.querySelector('#export-code');
   ta.value = code;
@@ -403,21 +403,21 @@ function openExportModal(game) {
     } catch (err) {
       document.execCommand('copy');
     }
-    e.target.textContent = 'Copié ✓';
-    setTimeout(() => { e.target.textContent = 'Copier le code'; }, 1500);
+    e.target.textContent = t('export.copiedBtn');
+    setTimeout(() => { e.target.textContent = t('export.copyBtn'); }, 1500);
   });
   overlay.querySelector('#export-close-btn').addEventListener('click', closeModal);
 }
 
 function openImportModal() {
   const overlay = openModal(`
-    <h3 class="modal-title">Importer une partie</h3>
-    <p class="hint">Colle ici le code reçu (partie en cours ou terminée).</p>
-    <textarea id="import-code" class="code-textarea" rows="6" placeholder="Colle le code ici…"></textarea>
+    <h3 class="modal-title">${t('import.title')}</h3>
+    <p class="hint">${t('import.desc')}</p>
+    <textarea id="import-code" class="code-textarea" rows="6" placeholder="${t('import.placeholder')}"></textarea>
     <p class="import-error hidden" id="import-error"></p>
     <div class="modal-actions">
-      <button class="btn-primary" id="import-confirm-btn">Importer</button>
-      <button class="btn-ghost" id="import-close-btn">Annuler</button>
+      <button class="btn-primary" id="import-confirm-btn">${t('import.confirmBtn')}</button>
+      <button class="btn-ghost" id="import-close-btn">${t('common.cancel')}</button>
     </div>`);
   overlay.querySelector('#import-close-btn').addEventListener('click', closeModal);
   overlay.querySelector('#import-confirm-btn').addEventListener('click', () => {
@@ -427,12 +427,12 @@ function openImportModal() {
     try {
       game = importGameCode(val);
     } catch (e) {
-      errEl.textContent = "Code invalide ou incomplet — vérifie qu'il a été copié en entier.";
+      errEl.textContent = t('import.errorMsg');
       errEl.classList.remove('hidden');
       return;
     }
     const existing = getCurrentGame();
-    if (existing && !confirm("Importer cette partie remplacera la partie en cours affichée à l'écran. Continuer ?")) {
+    if (existing && !confirm(t('import.confirmReplace'))) {
       return;
     }
     game.id = uid(); // évite les collisions avec une partie déjà archivée localement
@@ -703,10 +703,10 @@ function renderHome() {
       resumeZone.innerHTML = `
         <div class="resume-card">
           <div>
-            <strong>Partie en cours — ${escapeHtml(gameDef.label)}</strong>
-            <p>${current.players.map(p => escapeHtml(p.name)).join(', ')} · ${current.rounds.length} manche(s) jouée(s)</p>
+            <strong>${tf('home.resumeTitle', { label: escapeHtml(gameDef.label) })}</strong>
+            <p>${current.players.map(p => escapeHtml(p.name)).join(', ')} · ${tf('home.resumeRounds', { n: current.rounds.length })}</p>
           </div>
-          <button class="btn-ghost" id="resume-btn" style="border-color:var(--felt-1);color:var(--felt-1);">Reprendre →</button>
+          <button class="btn-ghost" id="resume-btn" style="border-color:var(--paper-accent);color:var(--paper-accent);">${t('home.resumeBtn')}</button>
         </div>`;
       document.getElementById('resume-btn').addEventListener('click', () => { boardAddPlayerOpen = false; setView('board'); });
     }
@@ -723,7 +723,7 @@ function renderSetup() {
   app.appendChild(tpl.content.cloneNode(true));
   applyI18n(app);
 
-  document.getElementById('setup-title').textContent = `${gameDef.suit} ${gameDef.label} — nouvelle partie`;
+  document.getElementById('setup-title').textContent = `${gameDef.suit} ${gameDef.label} — ${t('setup.newGameSuffix')}`;
   document.getElementById('setup-rules-btn').addEventListener('click', () => openRulesModal(gameDef));
   document.querySelector('[data-back="home"]').addEventListener('click', () => setView('home'));
 
@@ -733,7 +733,7 @@ function renderSetup() {
     const players = getPlayers();
     listEl.innerHTML = '';
     if (players.length === 0) {
-      listEl.innerHTML = '<p class="hint" style="margin:0;">Aucun joueur enregistré pour l\'instant — ajoute un nom ci-dessous.</p>';
+      listEl.innerHTML = `<p class="hint" style="margin:0;">${t('setup.noPlayersYet')}</p>`;
     }
     players.forEach(p => {
       const chip = document.createElement('button');
@@ -767,13 +767,13 @@ function renderSetup() {
 
   const optionsBlock = document.getElementById('setup-options');
   if (gameDef.endMode === 'target') {
-    optionsBlock.innerHTML = `<h3>Options</h3><div class="option-row">
-        <label for="opt-target">Score cible</label>
+    optionsBlock.innerHTML = `<h3>${t('setup.optionsTitle')}</h3><div class="option-row">
+        <label for="opt-target">${t('customgame.targetLabel')}</label>
         <input type="number" id="opt-target" min="1" step="5" value="${gameDef.defaultTarget || 100}">
       </div>`;
   } else {
-    optionsBlock.innerHTML = `<h3>Options</h3><div class="option-row">
-        <label for="opt-maxrounds">Nombre de manches</label>
+    optionsBlock.innerHTML = `<h3>${t('setup.optionsTitle')}</h3><div class="option-row">
+        <label for="opt-maxrounds">${t('customgame.roundsCountLabel')}</label>
         <input type="number" id="opt-maxrounds" min="1" max="50" value="${gameDef.defaultRounds || 10}">
       </div>`;
   }
@@ -782,8 +782,8 @@ function renderSetup() {
   function refreshStartState() {
     startBtn.disabled = setupSelectedPlayers.length < 2;
     startBtn.textContent = setupSelectedPlayers.length < 2
-      ? 'Sélectionne au moins 2 joueurs'
-      : 'Commencer la partie';
+      ? t('setup.selectAtLeast2')
+      : t('setup.startBtn');
   }
   refreshStartState();
 
@@ -875,8 +875,8 @@ function renderBoard() {
   const leaderIndices = getLeaderIndices(gameDef, totals);
 
   document.getElementById('board-meta').textContent = gameDef.endMode === 'target'
-    ? `Objectif : ${game.target} points · ${gameDef.direction === 'asc' ? 'Score le plus bas gagne' : 'Meilleur score gagne'}`
-    : `${game.rounds.length} / ${game.maxRounds} manches · ${gameDef.direction === 'asc' ? 'Score le plus bas gagne' : 'Score le plus haut gagne'}`;
+    ? tf('board.metaTarget', { n: game.target, direction: gameDef.direction === 'asc' ? t('board.lowestWins') : t('board.bestWins') })
+    : tf('board.metaRounds', { played: game.rounds.length, total: game.maxRounds, direction: gameDef.direction === 'asc' ? t('board.lowestWins') : t('board.highestWins') });
 
   const bannerEl = document.getElementById('winner-banner');
   if (game.finished) {
@@ -884,11 +884,11 @@ function renderBoard() {
     const winnerNames = winnerIds.map(i => game.players[i] && game.players[i].name).filter(Boolean);
     bannerEl.classList.remove('hidden');
     if (winnerNames.length > 1) {
-      bannerEl.textContent = `🤝 Égalité entre ${joinNames(winnerNames)} avec ${totals[winnerIds[0]]} points !`;
+      bannerEl.textContent = tf('board.tieBanner', { names: joinNames(winnerNames), n: totals[winnerIds[0]] });
     } else if (winnerNames.length === 1) {
-      bannerEl.textContent = `🏆 ${winnerNames[0]} remporte la partie avec ${totals[winnerIds[0]]} points !`;
+      bannerEl.textContent = tf('board.winnerBanner', { name: winnerNames[0], n: totals[winnerIds[0]] });
     } else {
-      bannerEl.textContent = 'Partie terminée';
+      bannerEl.textContent = t('board.gameOverText');
     }
   } else {
     bannerEl.classList.add('hidden');
@@ -898,11 +898,11 @@ function renderBoard() {
   const table = document.getElementById('scoreboard');
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  headRow.innerHTML = '<th>Manche</th>' + game.players.map((p, i) => `
+  headRow.innerHTML = `<th>${t('board.roundColumnHeader')}</th>` + game.players.map((p, i) => `
     <th>
       <div class="player-col-name">
         <span>${escapeHtml(p.name)}</span>
-        ${!game.finished ? `<button class="remove-col" data-remove-player="${i}" title="Retirer ce joueur" aria-label="Retirer ${escapeHtml(p.name)}">×</button>` : ''}
+        ${!game.finished ? `<button class="remove-col" data-remove-player="${i}" title="${t('board.removePlayerTitle')}" aria-label="${tf('board.removePlayerAria', { name: escapeHtml(p.name) })}">×</button>` : ''}
       </div>
     </th>`).join('');
   thead.appendChild(headRow);
@@ -947,12 +947,12 @@ function renderBoard() {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.dataset.removePlayer, 10);
       if (game.players.length <= 2) {
-        alert('Il faut au moins 2 joueurs.');
+        alert(t('board.needTwoPlayers'));
         return;
       }
       if (game.rounds.length > 0) {
         const name = game.players[idx].name;
-        if (!confirm(`Retirer ${name} ? Son historique de scores dans cette partie sera perdu.`)) return;
+        if (!confirm(tf('board.removePlayerConfirm', { name }))) return;
       }
       game.players.splice(idx, 1);
       game.rounds.forEach(round => round.splice(idx, 1));
@@ -965,7 +965,7 @@ function renderBoard() {
   const manageEl = document.getElementById('board-manage-players');
   if (!game.finished) {
     if (!boardAddPlayerOpen) {
-      manageEl.innerHTML = `<button class="board-toggle-add" id="board-toggle-add-btn">+ Ajouter un joueur</button>`;
+      manageEl.innerHTML = `<button class="board-toggle-add" id="board-toggle-add-btn">${t('board.addPlayerToggle')}</button>`;
       document.getElementById('board-toggle-add-btn').addEventListener('click', () => {
         boardAddPlayerOpen = true;
         renderBoard();
@@ -976,14 +976,14 @@ function renderBoard() {
       manageEl.innerHTML = `
         <div class="setup-block" style="margin-top:0;margin-bottom:16px;">
           <div class="setup-block-head">
-            <h3>Ajouter un joueur</h3>
-            <button class="icon-btn" id="board-close-add-btn" style="color:#6b6550;">Fermer ✕</button>
+            <h3>${t('board.addPlayerTitle')}</h3>
+            <button class="icon-btn" id="board-close-add-btn" style="color:rgba(var(--ink-rgb),0.6);">${t('board.closeBtn')}</button>
           </div>
-          <p class="hint">${game.rounds.length > 0 ? `Il recevra 0 point pour les ${game.rounds.length} manche(s) déjà jouée(s).` : 'Sélectionne un joueur enregistré ou ajoutes-en un nouveau.'}</p>
+          <p class="hint">${game.rounds.length > 0 ? tf('board.addPlayerHintRounds', { n: game.rounds.length }) : t('board.addPlayerHintNew')}</p>
           <div class="chip-list" id="board-available-chips"></div>
           <div class="inline-add">
-            <input type="text" id="board-new-player" placeholder="Nom du joueur" maxlength="24">
-            <button id="board-add-player-btn" class="btn-ghost">+ Ajouter</button>
+            <input type="text" id="board-new-player" placeholder="${t('common.playerNamePlaceholder')}" maxlength="24">
+            <button id="board-add-player-btn" class="btn-ghost">${t('common.addBtn')}</button>
           </div>
         </div>`;
 
@@ -1002,7 +1002,7 @@ function renderBoard() {
 
       const chipsEl = document.getElementById('board-available-chips');
       if (available.length === 0) {
-        chipsEl.innerHTML = '<p class="hint" style="margin:0;">Tous les joueurs enregistrés sont déjà dans la partie.</p>';
+        chipsEl.innerHTML = `<p class="hint" style="margin:0;">${t('board.allRegisteredInGame')}</p>`;
       } else {
         available.forEach(p => {
           const chip = document.createElement('button');
@@ -1033,7 +1033,7 @@ function renderBoard() {
   if (!game.finished) {
     const addBtn = document.createElement('button');
     addBtn.className = 'btn-primary';
-    addBtn.textContent = game.rounds.length === 0 ? 'Valider la 1ère manche' : 'Valider la manche';
+    addBtn.textContent = game.rounds.length === 0 ? t('board.validateFirstRound') : t('board.validateRound');
     addBtn.addEventListener('click', () => {
       const inputs = table.querySelectorAll('[data-score-input]');
       const round = new Array(game.players.length).fill(0);
@@ -1064,7 +1064,7 @@ function renderBoard() {
     if (game.rounds.length > 0) {
       const undoBtn = document.createElement('button');
       undoBtn.className = 'btn-ghost';
-      undoBtn.textContent = 'Annuler la dernière manche';
+      undoBtn.textContent = t('board.undoBtn');
       undoBtn.addEventListener('click', () => {
         game.rounds.pop();
         saveCurrentGame(game);
@@ -1075,9 +1075,9 @@ function renderBoard() {
 
     const finishBtn = document.createElement('button');
     finishBtn.className = 'btn-ghost';
-    finishBtn.textContent = 'Terminer la partie maintenant';
+    finishBtn.textContent = t('board.finishBtn');
     finishBtn.addEventListener('click', () => {
-      if (!confirm('Terminer la partie avec les scores actuels ?')) return;
+      if (!confirm(t('board.finishConfirm'))) return;
       const finalTotals = computeTotals(game);
       game.finished = true;
       game.winnerIds = getLeaderIndices(gameDef, finalTotals);
@@ -1101,15 +1101,15 @@ function renderBoard() {
 
   const exportBtn = document.createElement('button');
   exportBtn.className = 'btn-ghost';
-  exportBtn.textContent = 'Exporter (code texte)';
+  exportBtn.textContent = t('board.exportBtn');
   exportBtn.addEventListener('click', () => openExportModal(game));
   actionsEl.appendChild(exportBtn);
 
   const abandonBtn = document.createElement('button');
   abandonBtn.className = 'btn-ghost';
-  abandonBtn.textContent = 'Supprimer cette partie';
+  abandonBtn.textContent = t('board.deleteGameBtn');
   abandonBtn.addEventListener('click', () => {
-    if (!confirm('Supprimer définitivement cette partie en cours ?')) return;
+    if (!confirm(t('board.deleteGameConfirm'))) return;
     clearCurrentGame();
     setView('home');
   });
@@ -1181,32 +1181,32 @@ function renderPlayers() {
     const listEl = document.getElementById('players-manage-list');
     const players = getPlayers();
     if (players.length === 0) {
-      listEl.innerHTML = '<p class="empty-note">Aucun joueur enregistré pour l\'instant.</p>';
+      listEl.innerHTML = `<p class="empty-note">${t('players.noneYet')}</p>`;
       return;
     }
     listEl.innerHTML = '';
     players.forEach(p => {
       const li = document.createElement('li');
-      const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString('fr-FR') : '';
+      const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'fr-FR') : '';
       const stats = computePlayerStats(p.id);
       const statsLine = stats.gamesPlayed === 0
-        ? 'Aucune partie terminée pour l\'instant'
-        : `🏆 ${stats.wins} victoire${stats.wins > 1 ? 's' : ''} sur ${stats.gamesPlayed}` +
-          (stats.avgScore !== null ? ` · Ø ${stats.avgScore} pts` : '') +
-          (stats.streak >= 2 ? ` · 🔥 série de ${stats.streak}` : '');
+        ? t('players.statsNone')
+        : tf('players.statsLine', { wins: stats.wins, plural: stats.wins > 1 ? t('players.pluralS') : '', games: stats.gamesPlayed }) +
+          (stats.avgScore !== null ? tf('players.statsAvg', { avg: stats.avgScore }) : '') +
+          (stats.streak >= 2 ? tf('players.statsStreak', { streak: stats.streak }) : '');
       li.innerHTML = `
         <div>
           <div class="pname">${escapeHtml(p.name)}</div>
-          <div class="pmeta">Ajouté le ${date}</div>
+          <div class="pmeta">${tf('players.addedOn', { date })}</div>
           <div class="pstats">${statsLine}</div>
         </div>
-        <button class="icon-btn" data-remove="${p.id}">Supprimer</button>`;
+        <button class="icon-btn" data-remove="${p.id}">${t('players.deleteBtn')}</button>`;
       listEl.appendChild(li);
     });
     listEl.querySelectorAll('[data-remove]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.remove;
-        if (!confirm('Supprimer ce joueur de la liste enregistrée ?')) return;
+        if (!confirm(t('players.deleteConfirm'))) return;
         savePlayers(getPlayers().filter(p => p.id !== id));
         renderList();
       });
@@ -1230,14 +1230,15 @@ function renderCustoms() {
   const listEl = document.getElementById('customs-list');
   const customs = getCustomGames();
   if (customs.length === 0) {
-    listEl.innerHTML = '<p class="empty-note">Aucun jeu personnalisé pour l\'instant.</p>';
+    listEl.innerHTML = `<p class="empty-note">${t('customs.noneYet')}</p>`;
     return;
   }
   listEl.innerHTML = '';
   customs.forEach(cg => {
+    const dirLabel = cg.direction === 'asc' ? t('customs.lowestWins') : t('customs.highestWins');
     const desc = cg.endMode === 'target'
-      ? `Objectif ${cg.target} pts · ${cg.direction === 'asc' ? 'plus bas gagne' : 'plus haut gagne'}`
-      : `${cg.roundsCount} manches · ${cg.direction === 'asc' ? 'plus bas gagne' : 'plus haut gagne'}`;
+      ? tf('customs.descTarget', { target: cg.target, dir: dirLabel })
+      : tf('customs.descRounds', { rounds: cg.roundsCount, dir: dirLabel });
     const li = document.createElement('li');
     li.innerHTML = `
       <div>
@@ -1245,8 +1246,8 @@ function renderCustoms() {
         <div class="pmeta">${desc}</div>
       </div>
       <div class="custom-game-card-actions">
-        <button class="btn-ghost" data-edit="${cg.id}" style="border-color:var(--felt-1);color:var(--felt-1);padding:6px 10px;">Modifier</button>
-        <button class="icon-btn" data-remove="${cg.id}">Supprimer</button>
+        <button class="btn-ghost" data-edit="${cg.id}" style="border-color:var(--paper-accent);color:var(--paper-accent);padding:6px 10px;">${t('customs.editBtn')}</button>
+        <button class="icon-btn" data-remove="${cg.id}">${t('customs.deleteBtn')}</button>
       </div>`;
     listEl.appendChild(li);
   });
@@ -1259,7 +1260,7 @@ function renderCustoms() {
   });
   listEl.querySelectorAll('[data-remove]').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (!confirm('Supprimer ce jeu personnalisé ? Les parties déjà jouées restent visibles dans l\'historique.')) return;
+      if (!confirm(t('customs.deleteConfirm'))) return;
       saveCustomGames(getCustomGames().filter(g => g.id !== btn.dataset.remove));
       renderCustoms();
     });
@@ -1284,8 +1285,8 @@ function renderCustomForm() {
 
   const existing = editingCustomId ? getCustomGames().find(g => g.id === editingCustomId) : null;
   if (existing) {
-    document.querySelector('.view-title').textContent = 'Modifier le jeu personnalisé';
-    saveBtn.textContent = 'Enregistrer les modifications';
+    document.querySelector('.view-title').textContent = t('customgame.editTitle');
+    saveBtn.textContent = t('customgame.saveEdit');
     nameInput.value = existing.name;
     roundWordInput.value = existing.roundWord || 'Manche';
     document.querySelector(`input[name="cg-direction"][value="${existing.direction}"]`).checked = true;
@@ -1305,7 +1306,7 @@ function renderCustomForm() {
 
   saveBtn.addEventListener('click', () => {
     const name = nameInput.value.trim();
-    if (!name) { alert('Donne un nom à ton jeu.'); nameInput.focus(); return; }
+    if (!name) { alert(t('customgame.nameRequired')); nameInput.focus(); return; }
     const direction = document.querySelector('input[name="cg-direction"]:checked').value;
     const endMode = document.querySelector('input[name="cg-endmode"]:checked').value;
     const roundWord = roundWordInput.value.trim() || 'Manche';
@@ -1346,30 +1347,30 @@ function renderHistory() {
   const listEl = document.getElementById('history-list');
   const history = getHistory();
   if (history.length === 0) {
-    listEl.innerHTML = '<p class="empty-note">Aucune partie terminée pour l\'instant.</p>';
+    listEl.innerHTML = `<p class="empty-note">${t('history.noneYet')}</p>`;
     return;
   }
 
   history.forEach(h => {
     const div = document.createElement('div');
     div.className = 'history-card';
-    const date = new Date(h.finishedAt).toLocaleString('fr-FR');
+    const date = new Date(h.finishedAt).toLocaleString(currentLang === 'en' ? 'en-US' : 'fr-FR');
     const pills = h.players.map((p, i) => `
       <span class="history-pill ${(h.winnerIds || [h.winnerId]).includes(i) ? 'win' : ''}">${escapeHtml(p.name)} · ${h.totals[i]}</span>
     `).join('');
     div.innerHTML = `
       <h4>${h.suit || ''} ${escapeHtml(h.label || h.type)}</h4>
-      <div class="hdate">${date} · ${h.roundsPlayed} manche(s)</div>
+      <div class="hdate">${date} · ${tf('history.roundsPlayed', { n: h.roundsPlayed })}</div>
       <div class="history-scores">${pills}</div>`;
     listEl.appendChild(div);
   });
 
   const clearBtn = document.createElement('button');
   clearBtn.className = 'btn-ghost';
-  clearBtn.textContent = 'Effacer l\'historique';
+  clearBtn.textContent = t('history.clearBtn');
   clearBtn.style.marginTop = '8px';
   clearBtn.addEventListener('click', () => {
-    if (!confirm('Effacer tout l\'historique des parties ?')) return;
+    if (!confirm(t('history.clearConfirm'))) return;
     saveHistory([]);
     renderHistory();
   });
@@ -1431,6 +1432,84 @@ const TRANSLATIONS = {
     'home.openUndercover': 'Ouvrir Undercover →',
     'home.openLoupGarou': 'Ouvrir Loup-Garou →',
     'board.newGameBtn': 'Nouvelle partie',
+    'common.close': 'Fermer',
+    'common.cancel': 'Annuler',
+    'common.and': 'et',
+    'theme.modalTitle': 'Thème de la table',
+    'theme.auto': "Automatique (suit l'appareil)",
+    'theme.appledark': 'Apple Sombre',
+    'theme.applelight': 'Apple Clair',
+    'theme.fantasy': 'Fantastique',
+    'export.title': 'Exporter la partie',
+    'export.desc': "Copie ce code ({status}) et envoie-le pour le reprendre sur un autre appareil, via l'onglet « Importer ».",
+    'export.statusFinished': 'partie terminée',
+    'export.statusOngoing': 'partie en cours',
+    'export.copyBtn': 'Copier le code',
+    'export.copiedBtn': 'Copié ✓',
+    'import.title': 'Importer une partie',
+    'import.desc': 'Colle ici le code reçu (partie en cours ou terminée).',
+    'import.placeholder': 'Colle le code ici…',
+    'import.confirmBtn': 'Importer',
+    'import.errorMsg': "Code invalide ou incomplet — vérifie qu'il a été copié en entier.",
+    'import.confirmReplace': "Importer cette partie remplacera la partie en cours affichée à l'écran. Continuer ?",
+    'board.metaTarget': 'Objectif : {n} points · {direction}',
+    'board.metaRounds': '{played} / {total} manches · {direction}',
+    'board.lowestWins': 'Score le plus bas gagne',
+    'board.bestWins': 'Meilleur score gagne',
+    'board.highestWins': 'Score le plus haut gagne',
+    'board.tieBanner': '🤝 Égalité entre {names} avec {n} points !',
+    'board.winnerBanner': '🏆 {name} remporte la partie avec {n} points !',
+    'board.gameOverText': 'Partie terminée',
+    'board.undoBtn': 'Annuler la dernière manche',
+    'board.finishBtn': 'Terminer la partie maintenant',
+    'board.finishConfirm': 'Terminer la partie avec les scores actuels ?',
+    'board.exportBtn': 'Exporter (code texte)',
+    'board.deleteGameBtn': 'Supprimer cette partie',
+    'board.deleteGameConfirm': 'Supprimer définitivement cette partie en cours ?',
+    'board.validateFirstRound': 'Valider la 1ère manche',
+    'board.validateRound': 'Valider la manche',
+    'board.needTwoPlayers': 'Il faut au moins 2 joueurs.',
+    'board.removePlayerConfirm': 'Retirer {name} ? Son historique de scores dans cette partie sera perdu.',
+    'board.addPlayerToggle': '+ Ajouter un joueur',
+    'board.addPlayerTitle': 'Ajouter un joueur',
+    'board.closeBtn': 'Fermer ✕',
+    'board.addPlayerHintRounds': 'Il recevra 0 point pour les {n} manche(s) déjà jouée(s).',
+    'board.addPlayerHintNew': 'Sélectionne un joueur enregistré ou ajoutes-en un nouveau.',
+    'board.allRegisteredInGame': 'Tous les joueurs enregistrés sont déjà dans la partie.',
+    'board.roundColumnHeader': 'Manche',
+    'board.removePlayerTitle': 'Retirer ce joueur',
+    'board.removePlayerAria': 'Retirer {name}',
+    'players.noneYet': "Aucun joueur enregistré pour l'instant.",
+    'players.statsNone': "Aucune partie terminée pour l'instant",
+    'players.statsLine': '🏆 {wins} victoire{plural} sur {games}',
+    'players.pluralS': 's',
+    'players.statsAvg': ' · Ø {avg} pts',
+    'players.statsStreak': ' · 🔥 série de {streak}',
+    'players.addedOn': 'Ajouté le {date}',
+    'players.deleteBtn': 'Supprimer',
+    'players.deleteConfirm': 'Supprimer ce joueur de la liste enregistrée ?',
+    'customs.noneYet': "Aucun jeu personnalisé pour l'instant.",
+    'customs.lowestWins': 'plus bas gagne',
+    'customs.highestWins': 'plus haut gagne',
+    'customs.descTarget': 'Objectif {target} pts · {dir}',
+    'customs.descRounds': '{rounds} manches · {dir}',
+    'customs.editBtn': 'Modifier',
+    'customs.deleteBtn': 'Supprimer',
+    'customs.deleteConfirm': "Supprimer ce jeu personnalisé ? Les parties déjà jouées restent visibles dans l'historique.",
+    'customgame.editTitle': 'Modifier le jeu personnalisé',
+    'customgame.saveEdit': 'Enregistrer les modifications',
+    'customgame.nameRequired': 'Donne un nom à ton jeu.',
+    'setup.optionsTitle': 'Options',
+    'setup.selectAtLeast2': 'Sélectionne au moins 2 joueurs',
+    'setup.newGameSuffix': 'nouvelle partie',
+    'setup.noPlayersYet': "Aucun joueur enregistré pour l'instant — ajoute un nom ci-dessous.",
+    'history.noneYet': "Aucune partie terminée pour l'instant.",
+    'history.roundsPlayed': '{n} manche(s)',
+    'history.clearBtn': "Effacer l'historique",
+    'history.clearConfirm': "Effacer tout l'historique des parties ?",
+    'home.resumeTitle': 'Partie en cours — {label}',
+    'home.resumeRounds': '{n} manche(s) jouée(s)',
+    'home.resumeBtn': 'Reprendre →',
     'gameDescr.cinqrois': '11 manches. Combinaisons de suites &amp; familles. Le score le plus bas gagne.',
     'gameDescr.flip7': 'Prise de risque. Objectif 200 points. Le score le plus haut gagne.',
     'gameDescr.roidesnains': '7 donnes, une quête différente à chaque fois. Le score le plus haut gagne.',
@@ -1499,6 +1578,84 @@ const TRANSLATIONS = {
     'home.openUndercover': 'Open Undercover →',
     'home.openLoupGarou': 'Open Werewolf →',
     'board.newGameBtn': 'New game',
+    'common.close': 'Close',
+    'common.cancel': 'Cancel',
+    'common.and': 'and',
+    'theme.modalTitle': 'Table theme',
+    'theme.auto': 'Automatic (follows device)',
+    'theme.appledark': 'Apple Dark',
+    'theme.applelight': 'Apple Light',
+    'theme.fantasy': 'Fantasy',
+    'export.title': 'Export the game',
+    'export.desc': 'Copy this code ({status}) and send it to resume on another device, via the "Import" tab.',
+    'export.statusFinished': 'finished game',
+    'export.statusOngoing': 'ongoing game',
+    'export.copyBtn': 'Copy code',
+    'export.copiedBtn': 'Copied ✓',
+    'import.title': 'Import a game',
+    'import.desc': 'Paste the code you received here (ongoing or finished game).',
+    'import.placeholder': 'Paste the code here…',
+    'import.confirmBtn': 'Import',
+    'import.errorMsg': 'Invalid or incomplete code — check that it was copied in full.',
+    'import.confirmReplace': 'Importing this game will replace the game currently shown on screen. Continue?',
+    'board.metaTarget': 'Target: {n} points · {direction}',
+    'board.metaRounds': '{played} / {total} rounds · {direction}',
+    'board.lowestWins': 'Lowest score wins',
+    'board.bestWins': 'Best score wins',
+    'board.highestWins': 'Highest score wins',
+    'board.tieBanner': '🤝 Tie between {names} with {n} points!',
+    'board.winnerBanner': '🏆 {name} wins the game with {n} points!',
+    'board.gameOverText': 'Game over',
+    'board.undoBtn': 'Undo last round',
+    'board.finishBtn': 'End the game now',
+    'board.finishConfirm': 'End the game with the current scores?',
+    'board.exportBtn': 'Export (text code)',
+    'board.deleteGameBtn': 'Delete this game',
+    'board.deleteGameConfirm': 'Permanently delete this ongoing game?',
+    'board.validateFirstRound': 'Confirm the 1st round',
+    'board.validateRound': 'Confirm the round',
+    'board.needTwoPlayers': 'You need at least 2 players.',
+    'board.removePlayerConfirm': "Remove {name}? Their score history in this game will be lost.",
+    'board.addPlayerToggle': '+ Add a player',
+    'board.addPlayerTitle': 'Add a player',
+    'board.closeBtn': 'Close ✕',
+    'board.addPlayerHintRounds': "They'll receive 0 points for the {n} round(s) already played.",
+    'board.addPlayerHintNew': 'Pick a registered player or add a new one.',
+    'board.allRegisteredInGame': 'All registered players are already in the game.',
+    'board.roundColumnHeader': 'Round',
+    'board.removePlayerTitle': 'Remove this player',
+    'board.removePlayerAria': 'Remove {name}',
+    'players.noneYet': 'No registered players yet.',
+    'players.statsNone': 'No finished games yet',
+    'players.statsLine': '🏆 {wins} win{plural} out of {games}',
+    'players.pluralS': 's',
+    'players.statsAvg': ' · Avg {avg} pts',
+    'players.statsStreak': ' · 🔥 streak of {streak}',
+    'players.addedOn': 'Added on {date}',
+    'players.deleteBtn': 'Delete',
+    'players.deleteConfirm': 'Remove this player from the registered list?',
+    'customs.noneYet': 'No custom games yet.',
+    'customs.lowestWins': 'lowest wins',
+    'customs.highestWins': 'highest wins',
+    'customs.descTarget': 'Target {target} pts · {dir}',
+    'customs.descRounds': '{rounds} rounds · {dir}',
+    'customs.editBtn': 'Edit',
+    'customs.deleteBtn': 'Delete',
+    'customs.deleteConfirm': 'Delete this custom game? Games already played remain visible in the history.',
+    'customgame.editTitle': 'Edit custom game',
+    'customgame.saveEdit': 'Save changes',
+    'customgame.nameRequired': 'Give your game a name.',
+    'setup.optionsTitle': 'Options',
+    'setup.selectAtLeast2': 'Select at least 2 players',
+    'setup.newGameSuffix': 'new game',
+    'setup.noPlayersYet': 'No registered players yet — add a name below.',
+    'history.noneYet': 'No finished games yet.',
+    'history.roundsPlayed': '{n} round(s)',
+    'history.clearBtn': 'Clear history',
+    'history.clearConfirm': 'Clear the entire game history?',
+    'home.resumeTitle': 'Game in progress — {label}',
+    'home.resumeRounds': '{n} round(s) played',
+    'home.resumeBtn': 'Resume →',
     'gameDescr.cinqrois': '11 rounds. Runs &amp; sets combinations. Lowest score wins.',
     'gameDescr.flip7': 'Push your luck. Target 200 points. Highest score wins.',
     'gameDescr.roidesnains': '7 hands, a different quest each time. Highest score wins.',
@@ -1535,6 +1692,10 @@ let currentLang = detectLang();
 
 function t(key) {
   return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.fr[key] || key;
+}
+
+function tf(key, vars) {
+  return t(key).replace(/\{(\w+)\}/g, (_, k) => (vars && vars[k] != null) ? vars[k] : '');
 }
 
 function setLang(lang) {
@@ -1606,7 +1767,7 @@ function computePlayerStats(playerId) {
 
 function joinNames(names) {
   if (names.length <= 1) return names.join('');
-  return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`;
+  return `${names.slice(0, -1).join(', ')} ${t('common.and')} ${names[names.length - 1]}`;
 }
 
 function escapeHtml(str) {
