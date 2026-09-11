@@ -295,23 +295,20 @@ function openRulesModal(gameDef) {
 
 /* ---------- Thème (couleur de table + mode clair) ---------- */
 const THEMES = [
-  { key: 'green', label: 'Feutre vert', dot: 'linear-gradient(135deg,#155a41,#0f3d2e)' },
-  { key: 'burgundy', label: 'Feutre bordeaux', dot: 'linear-gradient(135deg,#7a1c3f,#54132e)' },
-  { key: 'navy', label: 'Feutre bleu nuit', dot: 'linear-gradient(135deg,#164066,#0c2a48)' },
-  { key: 'light', label: 'Clair', dot: 'linear-gradient(135deg,#f6f1e2,#ddd3b8)' },
+  { key: 'auto', label: 'Automatique (suit l\'appareil)', dot: 'linear-gradient(135deg,#ffffff 50%,#000000 50%)' },
   { key: 'appledark', label: 'Apple Sombre', dot: 'linear-gradient(135deg,#1c1c1e,#000000)' },
   { key: 'applelight', label: 'Apple Clair', dot: 'linear-gradient(135deg,#ffffff,#f2f2f7)' },
   { key: 'fantasy', label: 'Fantastique', dot: 'linear-gradient(135deg,#e6b8ff,#2a1152)' }
 ];
 
 function applyTheme(key) {
-  if (key === 'green') document.documentElement.removeAttribute('data-theme');
+  if (key === 'auto') document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme', key);
-  try { localStorage.setItem('mp_theme_v1', key === 'green' ? '' : key); } catch (e) {}
+  try { localStorage.setItem('mp_theme_v1', key === 'auto' ? '' : key); } catch (e) {}
 }
 
 function openThemeModal() {
-  const current = document.documentElement.getAttribute('data-theme') || 'green';
+  const current = document.documentElement.getAttribute('data-theme') || 'auto';
   const overlay = openModal(`
     <h3 class="modal-title">🎨 Thème de la table</h3>
     <div class="theme-grid" id="theme-grid"></div>
