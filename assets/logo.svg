@@ -1,20 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <defs>
-    <linearGradient id="feltBg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#155a41"/>
-      <stop offset="100%" stop-color="#0f3d2e"/>
-    </linearGradient>
-    <linearGradient id="goldDiamond" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e8c877"/>
-      <stop offset="100%" stop-color="#c8a24b"/>
-    </linearGradient>
-  </defs>
+  <!-- Fond blanc, style icône Apple (coins arrondis continus) -->
+  <rect x="4" y="4" width="112" height="112" rx="27" fill="#ffffff"/>
+  <rect x="4.75" y="4.75" width="110.5" height="110.5" rx="26.25" fill="none" stroke="#e5e5ea" stroke-width="1.5"/>
 
-  <!-- Fond feutre -->
-  <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#feltBg)"/>
-  <rect x="4.75" y="4.75" width="110.5" height="110.5" rx="25.25" fill="none" stroke="#e8c877" stroke-opacity="0.25" stroke-width="1.5"/>
-
-  <!-- Carreau -->
+  <!-- Carreau noir -->
   <path d="M60,17 C81,35 98,49 98,61 C98,73 81,87 60,105 C39,87 22,73 22,61 C22,49 39,35 60,17 Z"
-        fill="url(#goldDiamond)" stroke="#0f3d2e" stroke-width="2"/>
+        fill="#0a0a0c"/>
 </svg>
